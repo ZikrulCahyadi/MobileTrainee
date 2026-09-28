@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, Upload, X, Trash2, FileText } from 'lucide-react';
+import { Clock, Upload, X, Trash2, FileText, CheckCircle, AlertCircle, FileX } from 'lucide-react';
 import api from '../utils/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import imageCompression from 'browser-image-compression';
 
 const Tugas = () => {
   const navigate = useNavigate();
@@ -13,6 +14,12 @@ const Tugas = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [fileError, setFileError] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadText, setUploadText] = useState('Mengirim...');
+  const [feedback, setFeedback] = useState(null);
+  
+  // States for cancel confirmation
+  const [cancelConfirmTaskId, setCancelConfirmTaskId] = useState(null);
+  const [isCanceling, setIsCanceling] = useState(false);
   
   const fileInputRef = useRef(null);
 
@@ -23,11 +30,11 @@ const Tugas = () => {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/trainee/tasks');
+      const response = await api.get('/trainee/tasks');
       setTasks(response.data.data || []);
     } catch (error) {
       if (error.response?.status === 401) {
-        localStorage.removeItem('trainee_token');
+        localStorage.removeItem('auth_token');
         navigate('/login');
       }
       console.error("Error fetching tasks", error);
@@ -63,15 +70,15 @@ const Tugas = () => {
   const validateAndAddFiles = (files) => {
     let error = '';
     const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxPdfSize = 2 * 1024 * 1024; // 2MB
 
     const validFiles = files.filter(file => {
       if (!validTypes.includes(file.type)) {
         error = 'Format file tidak didukung. Harap gunakan PDF, JPG, atau PNG.';
         return false;
       }
-      if (file.size > maxSize) {
-        error = `Ukuran file ${file.name} terlalu besar. Maksimal 5MB per file.`;
+      if (file.type === 'application/pdf' && file.size > maxPdfSize) {
+        error = `Ukuran PDF terlalu besar. Maksimal 2 MB.`;
         return false;
       }
       return true;
@@ -98,27 +105,66 @@ const Tugas = () => {
       return;
     }
 
-    const formData = new FormData();
-    selectedFiles.forEach(file => {
-      formData.append('task_files[]', file);
-    });
-
     try {
       setIsUploading(true);
       setFileError('');
-      await api.post(`/api/trainee/tasks/${taskId}/submit`, formData, {
+
+      const formData = new FormData();
+      
+      const hasImage = selectedFiles.some(file => file.type.startsWith('image/'));
+      setUploadText(hasImage ? 'Mengompres gambar...' : 'Menyiapkan file...');
+
+      for (const file of selectedFiles) {
+        if (file.type.startsWith('image/')) {
+          const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true
+          };
+          try {
+            const compressedFile = await imageCompression(file, options);
+            formData.append('task_files[]', compressedFile);
+          } catch (error) {
+            console.error("Error compressing image", error);
+            formData.append('task_files[]', file);
+          }
+        } else {
+          formData.append('task_files[]', file);
+        }
+      }
+
+      setUploadText('Mengirim...');
+
+      await api.post(`/trainee/tasks/${taskId}/submit`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      alert('Tugas berhasil dikumpulkan!');
+      setFeedback({ type: 'success', text: 'Tugas berhasil dikumpulkan!' });
       setExpandedTaskId(null);
+      setSelectedFiles([]);
       fetchTasks();
     } catch (error) {
       console.error("Error submitting task", error);
-      setFileError(error.response?.data?.message || 'Gagal mengumpulkan tugas. Silakan coba lagi.');
+      setFeedback({ type: 'error', text: error.response?.data?.message || 'Gagal mengumpulkan tugas. Silakan coba lagi.' });
     } finally {
       setIsUploading(false);
+      setUploadText('Mengirim...');
+    }
+  };
+
+  const handleCancelSubmission = async (taskId) => {
+    try {
+      setIsCanceling(true);
+      await api.delete(`/trainee/tasks/${taskId}/submit`);
+      setCancelConfirmTaskId(null);
+      setExpandedTaskId(null);
+      fetchTasks();
+    } catch (error) {
+      console.error("Error canceling task", error);
+      setFeedback({ type: 'error', text: error.response?.data?.message || 'Gagal membatalkan pengumpulan tugas.' });
+    } finally {
+      setIsCanceling(false);
     }
   };
 
@@ -132,8 +178,25 @@ const Tugas = () => {
       {loading ? (
         <p className="text-center text-light mt-10">Memuat tugas...</p>
       ) : tasks.length === 0 ? (
-        <div className="card text-center text-light py-8">
-          Tidak ada tugas saat ini.
+        <div className="card" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
+          <div style={{
+            width: '80px', height: '80px', borderRadius: '50%', margin: '0 auto 1.5rem',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: '#f8fafc', color: '#64748b'
+          }}>
+            <FileX size={40} />
+          </div>
+          
+          <h3 className="font-bold text-xl mb-3" style={{ color: 'var(--primary-dark)' }}>
+            Belum Ada Tugas
+          </h3>
+          <p className="text-sm text-light mb-8" style={{ lineHeight: '1.6' }}>
+            Saat ini tidak ada tugas pelatihan yang perlu Anda selesaikan.
+          </p>
+          
+          <Link to="/" className="btn-primary" style={{ display: 'inline-block', width: '100%', textDecoration: 'none' }}>
+            Kembali ke Dashboard
+          </Link>
         </div>
       ) : (
         tasks.map((task) => (
@@ -152,13 +215,35 @@ const Tugas = () => {
               <span>Tenggat: {task.deadline_formatted || '-'}</span>
             </div>
 
-            {task.status !== 'Sudah' && (
+            {task.deadline_raw && new Date(task.deadline_raw) < new Date() ? (
+              <button 
+                style={{ 
+                  padding: '0.75rem', fontSize: '0.875rem', backgroundColor: '#f1f5f9', 
+                  border: '1px solid #e2e8f0', color: '#94a3b8', 
+                  cursor: 'not-allowed', borderRadius: '8px', width: '100%', fontWeight: '600' 
+                }} 
+                disabled
+              >
+                {task.status === 'Sudah' ? 'Tugas Telah Dikumpulkan (Waktu Habis)' : 'Waktu Pengumpulan Habis'}
+              </button>
+            ) : task.status !== 'Sudah' ? (
               <button 
                 className="btn-primary" 
                 style={{ padding: '0.75rem', fontSize: '0.875rem' }} 
                 onClick={() => handleOpenUpload(task.id)}
               >
                 Kumpulkan Tugas
+              </button>
+            ) : (
+              <button 
+                style={{ 
+                  padding: '0.75rem', fontSize: '0.875rem', backgroundColor: 'transparent', 
+                  border: '1px solid #ef4444', color: '#ef4444', 
+                  cursor: 'pointer', borderRadius: '8px', width: '100%', fontWeight: '600' 
+                }} 
+                onClick={() => setCancelConfirmTaskId(task.id)}
+              >
+                Batalkan Pengumpulan
               </button>
             )}
 
@@ -210,9 +295,23 @@ const Tugas = () => {
                 />
 
                 {fileError && (
-                  <p className="text-xs text-danger mb-4 font-medium p-3 rounded-lg" style={{ backgroundColor: 'var(--danger-bg)', borderRadius: '8px', border: '1px solid #fecaca' }}>
-                    {fileError}
-                  </p>
+                  <div 
+                    className="mb-4 flex items-start gap-3 p-4" 
+                    style={{ 
+                      backgroundColor: '#fef2f2', 
+                      borderRadius: '8px', 
+                      borderLeft: '4px solid #ef4444',
+                      borderTop: '1px solid #fee2e2',
+                      borderRight: '1px solid #fee2e2',
+                      borderBottom: '1px solid #fee2e2',
+                      boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    }}
+                  >
+                    <AlertCircle size={18} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
+                    <p className="text-sm font-medium" style={{ color: '#991b1b', lineHeight: '1.5' }}>
+                      {fileError}
+                    </p>
+                  </div>
                 )}
 
                 {selectedFiles.length > 0 && (
@@ -223,8 +322,17 @@ const Tugas = () => {
                           <div style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '1rem', border: '1px solid #bbf7d0', marginRight: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <FileText size={28} style={{ color: '#ef4444' }} strokeWidth={1.5} />
                           </div>
-                          <div className="flex-1 overflow-hidden">
-                            <p className="text-sm font-bold text-primary-dark truncate mb-1">{file.name}</p>
+                          <div className="flex-1" style={{ minWidth: 0, overflow: 'hidden' }}>
+                            <p 
+                              className="text-sm font-bold text-primary-dark mb-1" 
+                              style={{ 
+                                whiteSpace: 'nowrap', 
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis' 
+                              }}
+                            >
+                              {file.name}
+                            </p>
                             <p className="text-xs text-light mb-2">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
                             <button 
                               onClick={() => removeFile(idx)} 
@@ -276,7 +384,7 @@ const Tugas = () => {
                     disabled={selectedFiles.length === 0 || isUploading}
                     onClick={() => handleSubmitFiles(task.id)}
                   >
-                    {isUploading ? 'Mengirim...' : `Kirim Tugas (${selectedFiles.length})`}
+                    {isUploading ? uploadText : `Kirim Tugas (${selectedFiles.length})`}
                   </button>
                 </div>
               </div>
@@ -284,8 +392,112 @@ const Tugas = () => {
           </div>
         ))
       )}
+
+      {/* Confirmation Modal for Canceling Submission */}
+      {cancelConfirmTaskId && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9998,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '1.5rem', backdropFilter: 'blur(2px)'
+        }}>
+          <div className="card" style={{ 
+            width: '100%', maxWidth: '340px', padding: '2rem 1.5rem', 
+            textAlign: 'center', borderRadius: '16px', backgroundColor: '#fff',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          }}>
+            <div style={{
+              width: '64px', height: '64px', borderRadius: '50%', margin: '0 auto 1.25rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backgroundColor: '#fee2e2', color: '#ef4444'
+            }}>
+              <AlertCircle size={32} />
+            </div>
+            
+            <h3 className="font-bold text-xl mb-2" style={{ color: 'var(--primary-dark)' }}>
+              Batalkan Pengumpulan?
+            </h3>
+            <p className="text-sm text-light mb-6" style={{ lineHeight: '1.5' }}>
+              File yang sudah Anda kumpulkan akan dihapus secara permanen dari sistem. Anda yakin ingin melanjutkan?
+            </p>
+            
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button 
+                style={{ 
+                  flex: 1, padding: '0.875rem', borderRadius: '10px', 
+                  fontWeight: 'bold', border: '1px solid #cbd5e1', cursor: 'pointer',
+                  backgroundColor: '#fff', color: 'var(--primary-dark)'
+                }}
+                disabled={isCanceling}
+                onClick={() => setCancelConfirmTaskId(null)}
+              >
+                Tidak
+              </button>
+              <button 
+                style={{ 
+                  flex: 1, padding: '0.875rem', borderRadius: '10px', 
+                  fontWeight: 'bold', border: 'none', cursor: 'pointer',
+                  backgroundColor: '#ef4444', color: '#ffffff',
+                  opacity: isCanceling ? 0.7 : 1
+                }}
+                disabled={isCanceling}
+                onClick={() => handleCancelSubmission(cancelConfirmTaskId)}
+              >
+                {isCanceling ? 'Memproses...' : 'Ya, Batalkan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Modal Popup */}
+      {feedback && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '1.5rem', backdropFilter: 'blur(2px)'
+        }}>
+          <div className="card" style={{ 
+            width: '100%', maxWidth: '340px', padding: '2rem 1.5rem', 
+            textAlign: 'center', borderRadius: '16px', backgroundColor: '#fff',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          }}>
+            <div style={{
+              width: '72px', height: '72px', borderRadius: '50%', margin: '0 auto 1.25rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backgroundColor: feedback.type === 'success' ? '#dcfce3' : '#fee2e2',
+              color: feedback.type === 'success' ? '#10b981' : '#ef4444'
+            }}>
+              {feedback.type === 'success' ? <CheckCircle size={36} /> : <AlertCircle size={36} />}
+            </div>
+            
+            <h3 className="font-bold text-xl mb-3" style={{ color: 'var(--primary-dark)' }}>
+              {feedback.type === 'success' ? 'Berhasil!' : 'Gagal'}
+            </h3>
+            <p className="text-sm text-light mb-6" style={{ lineHeight: '1.6' }}>
+              {feedback.text}
+            </p>
+            
+            <button 
+              style={{ 
+                display: 'block',
+                width: '100%', padding: '0.875rem', borderRadius: '10px', 
+                fontWeight: 'bold', border: 'none', cursor: 'pointer',
+                backgroundColor: feedback.type === 'success' ? '#047857' : '#ef4444',
+                color: '#ffffff',
+                marginTop: '0.5rem'
+              }}
+              onClick={() => setFeedback(null)}
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Tugas;
+

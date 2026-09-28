@@ -1,11 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Upload, XCircle, QrCode } from 'lucide-react';
+import { Camera, Upload, XCircle, QrCode, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import api from '../utils/api';
 
 const Absen = () => {
   const [activeTab, setActiveTab] = useState('scan');
   const [isScanning, setIsScanning] = useState(false);
   const [token, setToken] = useState('');
+  const [feedback, setFeedback] = useState(null);
+  const [attendances, setAttendances] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      setLoadingHistory(true);
+      const response = await api.get('/trainee/attendances');
+      setAttendances(response.data.data || response.data || []);
+    } catch (error) {
+      console.error("Error fetching attendances", error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
   useEffect(() => {
     let scanner = null;
@@ -39,9 +59,22 @@ const Absen = () => {
     };
   }, [activeTab, isScanning]);
 
-  const handleSubmitAbsen = () => {
-    if (!token) return alert('Silakan masukkan token QR Code!');
-    alert('Token berhasil diinput: ' + token + '\n\nFitur submit ke backend (API presensi) masih menunggu implementasi dari backend.');
+  const handleSubmitAbsen = async () => {
+    if (!token) return setFeedback({ type: 'error', text: 'Silakan masukkan token QR Code!' });
+    try {
+        const response = await api.post('/trainee/submit-attendance', {
+            qr_token: token.trim()
+        });
+        setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
+        setToken('');
+        fetchHistory();
+    } catch (err) {
+        let debugMsg = 'Tidak ada respon dari server.';
+        if (err.response && err.response.data) {
+            debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
+        }
+        setFeedback({ type: 'error', text: debugMsg });
+    }
   };
 
   return (
@@ -128,21 +161,78 @@ const Absen = () => {
         </div>
       )}
 
-      <div>
+      <div style={{ paddingBottom: '2rem' }}>
         <h3 className="font-bold text-primary-dark mb-4 text-lg">Riwayat Absensi</h3>
-        <div className="card flex items-center justify-between" style={{ padding: '1rem' }}>
-          <div className="flex items-center gap-3">
-            <div style={{ backgroundColor: 'var(--danger-bg)', padding: '0.5rem', borderRadius: '50%', color: 'var(--danger)' }}>
-              <XCircle size={20} />
-            </div>
-            <div>
-              <p className="font-bold text-primary-dark text-sm">Oreantasi PKS</p>
-              <p className="text-xs text-light">15 Sep 2026</p>
-            </div>
-          </div>
-          <div className="status-badge red">Tidak Hadir</div>
-        </div>
+        
+        {loadingHistory ? (
+           <p className="text-center text-light">Memuat riwayat...</p>
+        ) : attendances.filter(a => a.status !== 'Belum').length === 0 ? (
+           <div className="card text-center text-light py-6">Belum ada riwayat absensi.</div>
+        ) : (
+           attendances.filter(a => a.status !== 'Belum').map((item, idx) => (
+             <div key={item.id || idx} className="card flex items-center justify-between mb-3" style={{ padding: '1rem' }}>
+               <div className="flex items-center gap-3">
+                 <div style={{ backgroundColor: item.status === 'Hadir' || item.status === 'Present' || !item.status ? '#dcfce3' : 'var(--danger-bg)', padding: '0.5rem', borderRadius: '50%', color: item.status === 'Hadir' || item.status === 'Present' || !item.status ? '#10b981' : 'var(--danger)' }}>
+                   {item.status === 'Hadir' || item.status === 'Present' || !item.status ? <CheckCircle size={20} /> : <XCircle size={20} />}
+                 </div>
+                 <div>
+                   <p className="font-bold text-primary-dark text-sm">{item.session || item.classInfo?.title || item.title || 'Sesi Pelatihan'}</p>
+                   <p className="text-xs text-light">{item.date_formatted || item.date || 'Tanggal tidak diketahui'}</p>
+                 </div>
+               </div>
+               <div className={`status-badge ${item.status === 'Hadir' || item.status === 'Present' || !item.status ? 'green' : 'red'}`} style={{ backgroundColor: item.status === 'Hadir' || item.status === 'Present' || !item.status ? '#dcfce3' : '#fee2e2', color: item.status === 'Hadir' || item.status === 'Present' || !item.status ? '#047857' : '#b91c1c' }}>
+                 {item.status || 'Hadir'}
+               </div>
+             </div>
+           ))
+        )}
       </div>
+
+      {/* Feedback Modal Popup */}
+      {feedback && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '1.5rem', backdropFilter: 'blur(2px)'
+        }}>
+          <div className="card" style={{ 
+            width: '100%', maxWidth: '340px', padding: '2rem 1.5rem', 
+            textAlign: 'center', borderRadius: '16px', backgroundColor: '#fff',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          }}>
+            <div style={{
+              width: '72px', height: '72px', borderRadius: '50%', margin: '0 auto 1.25rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backgroundColor: feedback.type === 'success' ? '#dcfce3' : '#fee2e2',
+              color: feedback.type === 'success' ? '#10b981' : '#ef4444'
+            }}>
+              {feedback.type === 'success' ? <CheckCircle size={36} /> : <AlertCircle size={36} />}
+            </div>
+            
+            <h3 className="font-bold text-xl mb-3" style={{ color: 'var(--primary-dark)' }}>
+              {feedback.type === 'success' ? 'Berhasil!' : 'Gagal'}
+            </h3>
+            <p className="text-sm text-light mb-6" style={{ lineHeight: '1.6' }}>
+              {feedback.text}
+            </p>
+            
+            <button 
+              style={{ 
+                display: 'block',
+                width: '100%', padding: '0.875rem', borderRadius: '10px', 
+                fontWeight: 'bold', border: 'none', cursor: 'pointer',
+                backgroundColor: feedback.type === 'success' ? '#047857' : '#ef4444',
+                color: '#ffffff',
+                marginTop: '0.5rem'
+              }}
+              onClick={() => setFeedback(null)}
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -15,9 +15,9 @@ const Login = () => {
     setError('');
     
     try {
-      const response = await api.post('/api/trainee/login', { nik });
+      const response = await api.post('/trainee/login', { nik });
       if (response.data.status === 'success' || response.data.token) {
-        localStorage.setItem('trainee_token', response.data.token);
+        localStorage.setItem('auth_token', response.data.token);
         localStorage.setItem('trainee_data', JSON.stringify(response.data.trainee || {}));
         navigate('/');
       } else {
@@ -33,18 +33,18 @@ const Login = () => {
   return (
     <div style={{ backgroundColor: 'var(--primary-dark)', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
       <div className="card" style={{ width: '100%', padding: '2.5rem 1.5rem', textAlign: 'center', borderRadius: '16px' }}>
-        <div style={{ backgroundColor: '#114c38', width: '80px', height: '100px', margin: '0 auto 1.5rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-           <div style={{ fontSize: '24px', fontWeight: 'bold' }}>FR</div>
-           <div style={{ fontSize: '10px' }}>ACADEMY</div>
-        </div>
+        <img 
+          src="https://www.helikonia.co.uk/wp-content/uploads/2021/03/first-resource-2.png" 
+          alt="First Resources Logo" 
+          style={{ width: '220px', height: 'auto', margin: '0 auto 1.5rem', display: 'block' }} 
+        />
 
-        <h1 className="text-xl font-bold text-primary-dark">FR Academy</h1>
-        <p className="text-light text-sm mb-6 mt-2">Portal Trainee Reguler</p>
+        <h1 className="text-xl font-bold text-primary-dark mb-6 mt-2">FR Academy</h1>
 
         {error && <p className="text-sm text-danger mb-4 font-semibold">{error}</p>}
 
         <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
-          <label className="text-sm font-semibold text-primary-dark mb-2 block">Nomor Induk Karyawan (NIK)</label>
+          <label className="text-sm font-semibold text-primary-dark block" style={{ marginBottom: '16px', paddingLeft: '4px' }}>Nomor Induk Kependudukan</label>
           <div className="input-container mb-6">
             <IdCard size={20} />
             <input 
@@ -55,6 +55,7 @@ const Login = () => {
               onChange={(e) => setNik(e.target.value)}
               required 
               disabled={loading}
+              style={{ fontSize: '14px' }}
             />
           </div>
 
@@ -63,7 +64,7 @@ const Login = () => {
           </button>
         </form>
 
-        <p className="text-xs text-light mt-4">Hanya untuk trainee yang sudah didaftarkan oleh Admin.</p>
+        <p className="text-xs text-light mt-4">Hanya untuk peserta training yang sudah didaftarkan oleh Admin.</p>
       </div>
     </div>
   );
