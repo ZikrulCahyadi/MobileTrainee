@@ -1,17 +1,17 @@
 {
-  "name": "FR Mobile Trainee",
-  "short_name": "FR Trainee",
-  "description": "Aplikasi absensi training First Resources.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#16a34a",
-  "icons": [
-    {
-      "src": "/logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+    "name":  "Learning Activity",
+    "short_name":  "Learning",
+    "description":  "Aplikasi absensi training First Resources.",
+    "start_url":  "/",
+    "display":  "standalone",
+    "background_color":  "#ffffff",
+    "theme_color":  "#16a34a",
+    "icons":  [
+                  {
+                      "src":  "/logo.png",
+                      "sizes":  "512x512",
+                      "type":  "image/png",
+                      "purpose":  "any maskable"
+                  }
+              ]
 }
