@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, Upload, XCircle, QrCode, CheckCircle, AlertCircle, Clock } from 'lucide-react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
 import api from '../utils/api';
 
 const Absen = () => {
@@ -28,33 +28,36 @@ const Absen = () => {
   };
 
   useEffect(() => {
-    let scanner = null;
+    let html5QrCode = null;
     
     if (activeTab === 'scan' && isScanning) {
-      scanner = new Html5QrcodeScanner(
-        "qr-reader",
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        /* verbose= */ false
-      );
+      html5QrCode = new Html5Qrcode("qr-reader");
       
-      scanner.render(
+      html5QrCode.start(
+        { facingMode: "environment" }, // Pakai kamera belakang
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
           setToken(decodedText);
           setIsScanning(false);
           setActiveTab('manual');
-          if (scanner) {
-            scanner.clear().catch(console.error);
-          }
+          html5QrCode.stop().catch(console.error);
         },
         (error) => {
-          // ignore scan failures
+          // Abaikan error per frame (misal QR belum ketemu)
         }
-      );
+      ).catch((err) => {
+        console.error("Camera start error", err);
+        setFeedback({ 
+          type: 'error', 
+          text: 'Kamera tidak dapat diakses. Pastikan Anda telah memberikan izin kamera pada browser/aplikasi Anda.' 
+        });
+        setIsScanning(false);
+      });
     }
 
     return () => {
-      if (scanner) {
-        scanner.clear().catch(console.error);
+      if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().catch(console.error);
       }
     };
   }, [activeTab, isScanning]);
@@ -122,11 +125,30 @@ const Absen = () => {
           )}
 
           {!isScanning && (
-            <button style={{ background: 'transparent', border: 'none', color: 'var(--primary-dark)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
+            <label style={{ background: 'transparent', border: 'none', color: 'var(--primary-dark)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
               <Upload size={18} />
               <span style={{ textDecoration: 'underline' }}>Scan dari file gambar</span>
-            </button>
+              <input 
+                type="file" 
+                accept="image/*" 
+                style={{ display: 'none' }}
+                onChange={async (e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    try {
+                      const html5QrCode = new Html5Qrcode("file-qr-reader");
+                      const decodedText = await html5QrCode.scanFileV2(file);
+                      setToken(decodedText.decodedText || decodedText);
+                      setActiveTab('manual');
+                    } catch (err) {
+                      setFeedback({ type: 'error', text: 'QR Code tidak ditemukan atau gambar kurang jelas.' });
+                    }
+                  }
+                }}
+              />
+            </label>
           )}
+          <div id="file-qr-reader" style={{ display: 'none' }}></div>
 
           {isScanning && (
             <button className="btn-outline-danger" onClick={() => setIsScanning(false)}>
