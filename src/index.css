@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --primary-dark: #0f4a38;
-  --primary-light: #16604a;
-  --accent: #88b839;
+  --primary-dark: #12513a; /* Lebih hijau, tidak kehitaman, setara visual warna tengah header */
+  --primary-light: #1c7356;
+  --accent: #86d16f;
   --bg-color: #f8f9fa;
   --text-dark: #1e293b;
   --text-light: #64748b;
@@ -130,7 +130,7 @@ body {
 }
 
 .btn-primary {
-  background-color: var(--primary-dark);
+  background: linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%);
   color: white;
   border: none;
   padding: 0.875rem 1.5rem;
@@ -143,8 +143,9 @@ body {
   align-items: center;
   gap: 0.5rem;
   font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(13, 56, 41, 0.15);
 }
-.btn-primary:active { opacity: 0.9; }
+.btn-primary:active { opacity: 0.9; transform: scale(0.99); }
 
 .btn-danger {
   background-color: #f13c63;
@@ -252,8 +253,8 @@ body {
 }
 
 .tab-button.active {
-  background-color: var(--primary-dark);
+  background: linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%);
   color: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(13, 56, 41, 0.2);
 }
 

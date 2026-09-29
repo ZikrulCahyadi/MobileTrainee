@@ -102,7 +102,12 @@ const Profil = () => {
             <User size={40} strokeWidth={2.5} />
           </div>
           
-          <h1 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.75rem', lineHeight: '1.2', letterSpacing: '-0.5px' }}>
+          <h1 style={{ 
+            fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.75rem', 
+            lineHeight: '1.2', letterSpacing: '-0.5px', textAlign: 'center',
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+            padding: '0 1rem'
+          }}>
             {trainee.name}
           </h1>
           

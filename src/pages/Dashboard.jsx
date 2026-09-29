@@ -75,8 +75,9 @@ const Dashboard = () => {
         boxShadow: '0 10px 30px rgba(13, 56, 41, 0.2)',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
-        minHeight: '290px' // Ditambah tingginya agar jarak antara logo dan teks "Selamat datang" makin jauh
+        justifyContent: 'flex-start',
+        gap: '1.25rem', // Jarak pas dan konsisten antara logo dan teks
+        minHeight: '280px' // Tinggi minimal yang proporsional
       }}>
         {/* Radial Glow */}
         <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(134,209,111,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
@@ -85,7 +86,7 @@ const Dashboard = () => {
         <BotanicalLeaf style={{ position: 'absolute', top: '-10%', right: '-10%', width: '350px', height: '350px', color: '#114b3d', opacity: 0.4, transform: 'rotate(15deg)', pointerEvents: 'none' }} />
         <BotanicalLeaf style={{ position: 'absolute', bottom: '-20%', right: '10%', width: '250px', height: '250px', color: '#1a6a51', opacity: 0.3, transform: 'rotate(-45deg)', pointerEvents: 'none' }} />
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 2 }}>
           <div style={{
             backgroundColor: 'white',
             padding: '3px', // Diperkecil bordernya
@@ -116,7 +117,11 @@ const Dashboard = () => {
 
         <div style={{ position: 'relative', zIndex: 2 }}>
           <p style={{ fontSize: '0.9rem', marginBottom: '0.2rem', color: '#e2e8f0' }}>Selamat datang,</p>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.75rem', lineHeight: '1.2', letterSpacing: '-0.5px' }}>
+          <h1 style={{ 
+            fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.75rem', 
+            lineHeight: '1.2', letterSpacing: '-0.5px',
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
+          }}>
             {loading ? 'Memuat...' : (data.trainee?.name || 'Nama Peserta')}
           </h1>
           
