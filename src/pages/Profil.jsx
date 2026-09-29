@@ -176,15 +176,13 @@ const Profil = () => {
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowLogoutModal(false)} 
-                className="btn-primary" 
-                style={{ flex: 1, backgroundColor: '#f8fafc', color: 'var(--primary-dark)', border: '1px solid #e2e8f0' }}
+                style={{ flex: 1, padding: '0.875rem', borderRadius: '8px', fontWeight: '600', backgroundColor: '#f8fafc', color: 'var(--primary-dark)', border: '1px solid #e2e8f0', cursor: 'pointer' }}
               >
                 Batal
               </button>
               <button 
                 onClick={confirmLogout} 
-                className="btn-primary" 
-                style={{ flex: 1, backgroundColor: '#ef4444', color: 'white', border: 'none' }}
+                style={{ flex: 1, padding: '0.875rem', borderRadius: '8px', fontWeight: '600', backgroundColor: '#ef4444', color: 'white', border: 'none', cursor: 'pointer' }}
               >
                 Keluar
               </button>
