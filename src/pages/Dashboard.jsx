@@ -29,11 +29,11 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const response = await api.get('/api/trainee/dashboard');
+        const response = await api.get('/trainee/dashboard');
         setData(response.data.data || response.data);
       } catch (error) {
         if (error.response?.status === 401) {
-          localStorage.removeItem('trainee_token');
+          localStorage.removeItem('auth_token');
           navigate('/login');
         }
         console.error("Error fetching dashboard data", error);

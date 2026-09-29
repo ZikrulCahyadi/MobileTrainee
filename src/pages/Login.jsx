@@ -16,9 +16,12 @@ const Login = () => {
     
     try {
       const response = await api.post('/trainee/login', { nik });
-      if (response.data.status === 'success' || response.data.token) {
-        localStorage.setItem('auth_token', response.data.token);
-        localStorage.setItem('trainee_data', JSON.stringify(response.data.trainee || {}));
+      const token = response.data.token || response.data.data?.token;
+      const trainee = response.data.trainee || response.data.data?.trainee || {};
+      
+      if (response.data.status === 'success' || token) {
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('trainee_data', JSON.stringify(trainee));
         navigate('/');
       } else {
         setError('Login gagal. Silakan periksa NIK Anda.');
