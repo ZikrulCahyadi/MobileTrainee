@@ -157,7 +157,7 @@ const Profil = () => {
           Keluar Akun
         </button>
         
-        <p className="text-center text-xs text-light mt-6 mb-4">Sistem Portal Trainee v1.0.0</p>
+        <p className="text-center text-xs text-light mt-6 mb-4">Sistem Portal Peserta Pelatihan v1.0.0</p>
       </div>
 
       {showLogoutModal && (
