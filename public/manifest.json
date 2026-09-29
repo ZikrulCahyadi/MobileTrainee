@@ -1,7 +1,7 @@
 {
     "name":  "Learning Activity",
     "short_name":  "Learning",
-    "description":  "Aplikasi absensi training First Resources.",
+    "description":  "Learning Activity Application",
     "start_url":  "/",
     "display":  "standalone",
     "background_color":  "#ffffff",
