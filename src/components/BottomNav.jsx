@@ -22,10 +22,11 @@ const BottomNav = () => {
       backgroundColor: 'white',
       display: 'flex',
       justifyContent: 'space-around',
-      padding: '0.5rem 0 0', // Padding top only, bottom handled by items
-      borderTop: '1px solid #e2e8f0',
+      padding: '0.75rem 0.5rem calc(0.75rem + env(safe-area-inset-bottom))', // Aman untuk layar HP dengan poni/bar swipe (iPhone/Android modern)
+      borderTopLeftRadius: '28px',
+      borderTopRightRadius: '28px',
       zIndex: 10,
-      boxShadow: '0 -4px 20px rgba(0,0,0,0.03)'
+      boxShadow: '0 -8px 32px rgba(0,0,0,0.06)'
     }}>
       {navItems.map((item) => (
         <NavLink
