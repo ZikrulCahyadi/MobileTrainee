@@ -157,11 +157,25 @@ body {
     min-height: 100vh;
   }
 
+  .dashboard-header-container {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+  }
+
+  .dashboard-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
   .dashboard-cards-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem !important;
     align-items: stretch;
     padding: 0 3rem !important;
+    width: 100%;
   }
 
   .dashboard-full-width-card {
@@ -195,6 +209,8 @@ body {
     padding: 1rem 1.5rem;
     justify-content: flex-start;
     border-radius: 12px;
+    flex: none;
+    margin-bottom: 0.5rem;
   }
 
   .nav-icon-wrapper {

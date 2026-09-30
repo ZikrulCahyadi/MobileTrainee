@@ -170,7 +170,7 @@ const Tugas = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 dashboard-form-container">
       <div className="mb-6 mt-2">
         <h2 className="text-xl font-bold text-primary-dark mb-1">Tugas Training</h2>
         <p className="text-sm text-light">Daftar tugas dari materi yang telah diikuti.</p>
@@ -278,7 +278,7 @@ const Tugas = () => {
                     
                     <button 
                       className="btn-primary" 
-                      style={{ display: 'inline-block', width: 'auto', backgroundColor: '#fff', color: 'var(--primary-dark)', border: '1px solid #cbd5e1', padding: '0.5rem 1.25rem', fontSize: '0.875rem', borderRadius: '8px', fontWeight: '600' }}
+                      style={{ display: 'inline-block', width: 'auto', padding: '0.5rem 1.25rem', fontSize: '0.875rem', borderRadius: '8px', fontWeight: '600' }}
                       onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
                     >
                       Browse Files

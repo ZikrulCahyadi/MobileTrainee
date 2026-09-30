@@ -77,12 +77,13 @@ const Dashboard = () => {
   return (
     <div style={{ paddingBottom: '90px', backgroundColor: '#f4f7f6', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
       {/* PREMIUM HEADER */}
-      <div style={{
+      <div className="dashboard-header-container" style={{
         background: 'linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%)',
         position: 'relative',
         overflow: 'hidden',
         color: 'white',
-        padding: '1rem 1.5rem 5.5rem', // Dikurangi lagi padding atasnya agar logo lebih naik, padding bawah ditambah
+        padding: '1rem 1.5rem 5.5rem', // Default mobile padding
+
         borderBottomLeftRadius: '32px',
         borderBottomRightRadius: '32px',
         boxShadow: '0 10px 30px rgba(13, 56, 41, 0.2)',

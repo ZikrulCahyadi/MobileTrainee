@@ -110,7 +110,7 @@ export default function Evaluasi() {
     <div style={{ paddingBottom: '6rem', backgroundColor: 'var(--bg-color)', minHeight: '100vh' }}>
       
       {/* HEADER EVALUASI */}
-      <div style={{ 
+      <div className="dashboard-header-container" style={{ 
         background: 'linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%)', 
         color: 'white', 
         padding: '1.5rem', 
@@ -144,7 +144,7 @@ export default function Evaluasi() {
         </div>
       </div>
       
-      <form onSubmit={handleSubmit} style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <form onSubmit={handleSubmit} className="dashboard-form-container" style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
         {EVALUATION_QUESTIONS.map((cat, cIdx) => (
           <div key={cIdx} className="card" style={{ padding: '1.25rem' }}>
             <h3 style={{ fontWeight: 'bold', color: 'var(--primary-dark)', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', fontSize: '0.875rem' }}>
