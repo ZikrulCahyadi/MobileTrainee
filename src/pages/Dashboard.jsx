@@ -231,7 +231,7 @@ const Dashboard = () => {
               <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '2px', fontWeight: '500' }}>Evaluasi Menunggu</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
                 <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#0f4a38' }}>{loading ? '...' : (data.pendingEvaluations || 0)}</span>
-                <span style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '600' }}>sesi</span>
+                <span style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '600' }}>materi</span>
               </div>
             </div>
           </div>

@@ -97,11 +97,20 @@ export default function Evaluasi() {
   }
 
   return (
-    <div style={{ paddingBottom: '6rem', backgroundColor: 'var(--bg-color)', minHeight: '100vh' }}>
-      <div style={{ backgroundColor: 'var(--primary-dark)', color: 'white', padding: '1.5rem', paddingTop: '2.5rem', borderBottomLeftRadius: '24px', borderBottomRightRadius: '24px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '0.5rem' }}>Evaluasi Training</h1>
-        <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>Sesi: {activeSession.title}</p>
-        <p style={{ fontSize: '0.75rem', opacity: 0.75, marginTop: '0.25rem' }}>Trainer: {activeSession.trainer_name}</p>
+    <div style={{ paddingBottom: '6rem', backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '1rem' }}>
+      
+      <div className="card mb-6 mt-2">
+        <h2 className="text-xl font-bold text-primary-dark mb-1">Evaluasi Training</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.75rem' }}>
+          <p className="text-sm" style={{ color: 'var(--text-dark)', fontWeight: '700' }}>
+            <span style={{ color: 'var(--text-light)', fontWeight: 'normal' }}>Materi: </span> 
+            {activeSession.title}
+          </p>
+          <p className="text-sm" style={{ color: 'var(--text-dark)', fontWeight: '700' }}>
+            <span style={{ color: 'var(--text-light)', fontWeight: 'normal' }}>Trainer: </span> 
+            {activeSession.trainer_name}
+          </p>
+        </div>
       </div>
       
       <form onSubmit={handleSubmit} style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
