@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Upload, XCircle, QrCode, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { Camera, Upload, XCircle, QrCode, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react';
 import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
 import api from '../utils/api';
 
@@ -40,19 +40,23 @@ const Absen = () => {
           setIsScanning(false);
           html5QrCode.stop().catch(console.error);
           
-          // Submit otomatis
-          api.post('/trainee/submit-attendance', {
-              qr_token: decodedText.trim()
-          }).then(response => {
-              setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
-              fetchHistory();
-          }).catch(err => {
-              let debugMsg = 'Tidak ada respon dari server.';
-              if (err.response && err.response.data) {
-                  debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
-              }
-              setFeedback({ type: 'error', text: debugMsg });
-          });
+          setFeedback({ type: 'loading', text: 'Memverifikasi data absensi Anda, mohon tunggu sebentar...' });
+          
+          setTimeout(() => {
+            // Submit otomatis
+            api.post('/trainee/submit-attendance', {
+                qr_token: decodedText.trim()
+            }).then(response => {
+                setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
+                fetchHistory();
+            }).catch(err => {
+                let debugMsg = 'Tidak ada respon dari server.';
+                if (err.response && err.response.data) {
+                    debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
+                }
+                setFeedback({ type: 'error', text: debugMsg });
+            });
+          }, 2000);
         },
         (error) => {
           // Abaikan error per frame (misal QR belum ketemu)
@@ -153,19 +157,22 @@ const Absen = () => {
                       const text = decodedText.decodedText || decodedText;
                       
                       // Submit otomatis
-                      try {
-                        const response = await api.post('/trainee/submit-attendance', {
-                            qr_token: text.trim()
-                        });
-                        setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
-                        fetchHistory();
-                      } catch (err) {
-                        let debugMsg = 'Tidak ada respon dari server.';
-                        if (err.response && err.response.data) {
-                            debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
+                      setFeedback({ type: 'loading', text: 'Memverifikasi data absensi dari gambar...' });
+                      setTimeout(async () => {
+                        try {
+                          const response = await api.post('/trainee/submit-attendance', {
+                              qr_token: text.trim()
+                          });
+                          setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
+                          fetchHistory();
+                        } catch (err) {
+                          let debugMsg = 'Tidak ada respon dari server.';
+                          if (err.response && err.response.data) {
+                              debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
+                          }
+                          setFeedback({ type: 'error', text: debugMsg });
                         }
-                        setFeedback({ type: 'error', text: debugMsg });
-                      }
+                      }, 2000);
                     } catch (err) {
                       setFeedback({ type: 'error', text: 'QR Code tidak ditemukan atau gambar kurang jelas.' });
                     }
@@ -252,32 +259,34 @@ const Absen = () => {
             <div style={{
               width: '72px', height: '72px', borderRadius: '50%', margin: '0 auto 1.25rem',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              backgroundColor: feedback.type === 'success' ? '#dcfce3' : '#fee2e2',
-              color: feedback.type === 'success' ? '#10b981' : '#ef4444'
+              backgroundColor: feedback.type === 'success' ? '#dcfce3' : feedback.type === 'loading' ? '#e0f2fe' : '#fee2e2',
+              color: feedback.type === 'success' ? '#10b981' : feedback.type === 'loading' ? '#0284c7' : '#ef4444'
             }}>
-              {feedback.type === 'success' ? <CheckCircle size={36} /> : <AlertCircle size={36} />}
+              {feedback.type === 'success' ? <CheckCircle size={36} /> : feedback.type === 'loading' ? <Loader2 size={36} className="animate-spin" /> : <AlertCircle size={36} />}
             </div>
             
             <h3 className="font-bold text-xl mb-3" style={{ color: 'var(--primary-dark)' }}>
-              {feedback.type === 'success' ? 'Berhasil!' : 'Gagal'}
+              {feedback.type === 'success' ? 'Berhasil!' : feedback.type === 'loading' ? 'Memproses...' : 'Gagal'}
             </h3>
             <p className="text-sm text-light mb-6" style={{ lineHeight: '1.6' }}>
               {feedback.text}
             </p>
             
-            <button 
-              style={{ 
-                display: 'block',
-                width: '100%', padding: '0.875rem', borderRadius: '10px', 
-                fontWeight: 'bold', border: 'none', cursor: 'pointer',
-                backgroundColor: feedback.type === 'success' ? '#047857' : '#ef4444',
-                color: '#ffffff',
-                marginTop: '0.5rem'
-              }}
-              onClick={() => setFeedback(null)}
-            >
-              Tutup
-            </button>
+            {feedback.type !== 'loading' && (
+              <button 
+                style={{ 
+                  display: 'block',
+                  width: '100%', padding: '0.875rem', borderRadius: '10px', 
+                  fontWeight: 'bold', border: 'none', cursor: 'pointer',
+                  backgroundColor: feedback.type === 'success' ? '#047857' : '#ef4444',
+                  color: '#ffffff',
+                  marginTop: '0.5rem'
+                }}
+                onClick={() => setFeedback(null)}
+              >
+                Tutup
+              </button>
+            )}
           </div>
         </div>
       )}
