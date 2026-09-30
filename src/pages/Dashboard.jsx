@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, ClipboardList, Star, QrCode, Calendar, Clock, MapPin, Home, User, BookOpen, X, ChevronRight, BookOpenCheck } from 'lucide-react';
+import { CheckCircle, ClipboardList, Star, QrCode, Calendar, Clock, MapPin, Home, User, BookOpen, X, ChevronRight, BookOpenCheck, Coffee } from 'lucide-react';
 import api from '../utils/api';
 
 const BotanicalLeaf = ({ style }) => (
@@ -337,19 +337,35 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <a 
-              href={data.classInfo.lms_url || "https://lms.fr-academy.my.id"} 
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', position: 'relative', zIndex: 1,
-                backgroundColor: '#86d16f', color: '#0d3829', padding: '0.875rem', borderRadius: '12px',
-                textDecoration: 'none', fontWeight: '800', marginTop: '1.5rem', boxShadow: '0 4px 12px rgba(134, 209, 111, 0.3)'
-              }}
-            >
-              <BookOpen size={20} strokeWidth={2.5} />
-              Buka LMS
-            </a>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '1.5rem', position: 'relative', zIndex: 1 }}>
+              <a 
+                href={data.classInfo.lms_url || "https://lms.fr-academy.my.id"} 
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                  backgroundColor: '#86d16f', color: '#0d3829', padding: '0.875rem', borderRadius: '12px',
+                  textDecoration: 'none', fontWeight: '800', boxShadow: '0 4px 12px rgba(134, 209, 111, 0.3)'
+                }}
+              >
+                <BookOpen size={20} strokeWidth={2.5} />
+                LMS
+              </a>
+              <a 
+                href={data.classInfo.mess_url || "https://mess.first-resources.co.id"} 
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                  backgroundColor: 'white', color: '#0d3829', padding: '0.875rem', borderRadius: '12px',
+                  textDecoration: 'none', fontWeight: '800', border: '2px solid #86d16f',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                <Coffee size={20} strokeWidth={2.5} />
+                Mess
+              </a>
+            </div>
           </div>
         )}
 
