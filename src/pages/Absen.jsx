@@ -37,10 +37,22 @@ const Absen = () => {
         { facingMode: "environment" }, // Pakai kamera belakang
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
-          setToken(decodedText);
           setIsScanning(false);
-          setActiveTab('manual');
           html5QrCode.stop().catch(console.error);
+          
+          // Submit otomatis
+          api.post('/trainee/submit-attendance', {
+              qr_token: decodedText.trim()
+          }).then(response => {
+              setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
+              fetchHistory();
+          }).catch(err => {
+              let debugMsg = 'Tidak ada respon dari server.';
+              if (err.response && err.response.data) {
+                  debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
+              }
+              setFeedback({ type: 'error', text: debugMsg });
+          });
         },
         (error) => {
           // Abaikan error per frame (misal QR belum ketemu)
@@ -138,8 +150,22 @@ const Absen = () => {
                     try {
                       const html5QrCode = new Html5Qrcode("file-qr-reader");
                       const decodedText = await html5QrCode.scanFileV2(file);
-                      setToken(decodedText.decodedText || decodedText);
-                      setActiveTab('manual');
+                      const text = decodedText.decodedText || decodedText;
+                      
+                      // Submit otomatis
+                      try {
+                        const response = await api.post('/trainee/submit-attendance', {
+                            qr_token: text.trim()
+                        });
+                        setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
+                        fetchHistory();
+                      } catch (err) {
+                        let debugMsg = 'Tidak ada respon dari server.';
+                        if (err.response && err.response.data) {
+                            debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
+                        }
+                        setFeedback({ type: 'error', text: debugMsg });
+                      }
                     } catch (err) {
                       setFeedback({ type: 'error', text: 'QR Code tidak ditemukan atau gambar kurang jelas.' });
                     }

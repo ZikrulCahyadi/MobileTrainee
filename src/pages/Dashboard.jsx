@@ -337,34 +337,49 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '1.5rem', position: 'relative', zIndex: 1 }}>
-              <a 
-                href={data.classInfo.lms_url || "https://lms.fr-academy.my.id"} 
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                  backgroundColor: '#86d16f', color: '#0d3829', padding: '0.875rem', borderRadius: '12px',
-                  textDecoration: 'none', fontWeight: '800', boxShadow: '0 4px 12px rgba(134, 209, 111, 0.3)'
-                }}
-              >
-                <BookOpen size={20} strokeWidth={2.5} />
-                LMS
-              </a>
-              <a 
-                href={data.classInfo.mess_url || "https://mess.first-resources.co.id"} 
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                  backgroundColor: 'white', color: '#0d3829', padding: '0.875rem', borderRadius: '12px',
-                  textDecoration: 'none', fontWeight: '800', border: '2px solid #86d16f',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                }}
-              >
-                <Coffee size={20} strokeWidth={2.5} />
-                Mess
-              </a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1.5rem', position: 'relative', zIndex: 1 }}>
+              {/* LMS Section */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', lineHeight: '1.5', margin: 0 }}>
+                  Akses materi dan modul pelatihan silahkan cek di LMS FR Academy.
+                </p>
+                <a 
+                  href={data.classInfo.lms_url || "https://e-learning.first-resources.com/"} 
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                    backgroundColor: '#86d16f', color: '#0d3829', padding: '0.875rem', borderRadius: '12px',
+                    textDecoration: 'none', fontWeight: '800', boxShadow: '0 4px 12px rgba(134, 209, 111, 0.3)',
+                    width: '100%'
+                  }}
+                >
+                  <BookOpen size={20} strokeWidth={2.5} />
+                  LMS FR Academy
+                </a>
+              </div>
+
+              {/* Mess Section */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', lineHeight: '1.5', margin: 0 }}>
+                  Butuh penginapan selama masa pelatihan? Anda dapat melihat informasi melalui portal resmi Mess FR Academy.
+                </p>
+                <a 
+                  href={data.classInfo.mess_url || "https://mess-fr-academy.my.id"} 
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                    backgroundColor: 'white', color: '#0d3829', padding: '0.875rem', borderRadius: '12px',
+                    textDecoration: 'none', fontWeight: '800', border: '2px solid #86d16f',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    width: '100%'
+                  }}
+                >
+                  <Coffee size={20} strokeWidth={2.5} />
+                  Mess FR Academy
+                </a>
+              </div>
             </div>
           </div>
         )}
