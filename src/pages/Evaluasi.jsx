@@ -97,18 +97,35 @@ export default function Evaluasi() {
   }
 
   return (
-    <div style={{ paddingBottom: '6rem', backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '1rem' }}>
+    <div style={{ paddingBottom: '6rem', backgroundColor: 'var(--bg-color)', minHeight: '100vh' }}>
       
-      <div className="card mb-6 mt-2">
-        <h2 className="text-xl font-bold text-primary-dark mb-1">Evaluasi Training</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.75rem' }}>
-          <p className="text-sm" style={{ color: 'var(--text-dark)', fontWeight: '700' }}>
-            <span style={{ color: 'var(--text-light)', fontWeight: 'normal' }}>Materi: </span> 
-            {activeSession.title}
+      {/* HEADER EVALUASI */}
+      <div style={{ 
+        background: 'linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%)', 
+        color: 'white', 
+        padding: '1.5rem', 
+        paddingTop: '2.5rem', 
+        borderBottomLeftRadius: '32px', 
+        borderBottomRightRadius: '32px', 
+        boxShadow: '0 10px 30px rgba(13, 56, 41, 0.2)', 
+        marginBottom: '1.5rem',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Glow & Decorative elements to match dashboard slightly */}
+        <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(134,209,111,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        
+        <h1 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '1rem', position: 'relative', zIndex: 2 }}>
+          Evaluasi Training
+        </h1>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', position: 'relative', zIndex: 2 }}>
+          <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>
+            <span style={{ fontWeight: 'normal', opacity: 0.75 }}>Materi: </span>
+            <span style={{ fontWeight: 'bold' }}>{activeSession.title}</span>
           </p>
-          <p className="text-sm" style={{ color: 'var(--text-dark)', fontWeight: '700' }}>
-            <span style={{ color: 'var(--text-light)', fontWeight: 'normal' }}>Trainer: </span> 
-            {activeSession.trainer_name}
+          <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>
+            <span style={{ fontWeight: 'normal', opacity: 0.75 }}>Trainer: </span>
+            <span style={{ fontWeight: 'bold' }}>{activeSession.trainer_name}</span>
           </p>
         </div>
       </div>
