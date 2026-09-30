@@ -47,7 +47,7 @@ const Login = () => {
         {error && <p className="text-sm text-danger mb-4 font-semibold">{error}</p>}
 
         <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
-          <label className="text-sm font-semibold text-primary-dark block" style={{ marginBottom: '16px', paddingLeft: '4px' }}>Nomor Induk Kependudukan</label>
+          <label className="text-sm font-semibold text-primary-dark block" style={{ marginBottom: '16px', paddingLeft: '4px' }}>Nomor Induk Karyawan</label>
           <div className="input-container mb-6">
             <IdCard size={20} />
             <input 

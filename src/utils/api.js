@@ -4,7 +4,10 @@ import axios from 'axios';
 const api = axios.create({
     // Sesuaikan baseURL dengan URL lokal Laravel Anda (biasanya https://fr-academy.my.id)
     // Gunakan IP Address komputer (misal: http://192.168.1.5:8000/api) jika Anda mengetesnya lewat HP/Emulator
+    
+    // URL PRODUCTION
     baseURL: 'https://fr-academy.my.id/api', 
+
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
