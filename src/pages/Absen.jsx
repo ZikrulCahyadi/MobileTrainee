@@ -41,20 +41,24 @@ const Absen = () => {
           if (isProcessingScan) return;
           isProcessingScan = true;
 
-          // Hentikan scanner dulu
+          // Pause (bekukan) kamera dan langsung munculkan pop-up loading
+          try {
+            html5QrCode.pause();
+          } catch (e) {
+            console.error(e);
+          }
+          setFeedback({ type: 'loading', text: 'Memverifikasi data absensi Anda, mohon tunggu sebentar...' });
+          
+          // Tahan selama 2 detik sebelum kamera dimatikan dan pop-up hasil muncul
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          // Hentikan scanner sepenuhnya
           try {
             await html5QrCode.stop();
           } catch (e) {
             console.error(e);
           }
-          
           setIsScanning(false);
-          
-          // Munculkan UI Loading
-          setFeedback({ type: 'loading', text: 'Memverifikasi data absensi Anda, mohon tunggu sebentar...' });
-          
-          // Tahan selama 2 detik secara presisi
-          await new Promise(resolve => setTimeout(resolve, 2000));
 
           // Submit otomatis
           try {
