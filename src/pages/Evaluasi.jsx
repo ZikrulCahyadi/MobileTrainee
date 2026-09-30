@@ -4,6 +4,16 @@ import { getPendingEvaluations, submitEvaluation } from '../utils/api';
 import { EVALUATION_QUESTIONS, EVALUATION_VALUES } from '../constants/evaluationQuestions';
 import { CheckCircle, AlertCircle, Check, FileX } from 'lucide-react';
 
+const BotanicalLeaf = ({ style }) => (
+  <svg viewBox="0 0 100 100" style={style}>
+    <path fill="currentColor" d="M10,90 Q15,40 50,10 Q80,20 90,60 Q80,85 50,90 Q20,95 10,90 Z" />
+    <path fill="none" stroke="currentColor" strokeWidth="2" d="M10,90 Q30,60 50,10" />
+    <path fill="none" stroke="currentColor" strokeWidth="1" d="M25,75 Q40,65 50,55" />
+    <path fill="none" stroke="currentColor" strokeWidth="1" d="M35,60 Q50,55 60,45" />
+    <path fill="none" stroke="currentColor" strokeWidth="1" d="M45,45 Q60,40 70,30" />
+  </svg>
+);
+
 export default function Evaluasi() {
   const navigate = useNavigate();
   const [pendingSessions, setPendingSessions] = useState([]);
@@ -115,6 +125,10 @@ export default function Evaluasi() {
         {/* Glow & Decorative elements to match dashboard slightly */}
         <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(134,209,111,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
         
+        {/* Decorative Leaves */}
+        <BotanicalLeaf style={{ position: 'absolute', top: '-20%', right: '-5%', width: '150px', height: '150px', color: '#114b3d', opacity: 0.4, transform: 'rotate(15deg)', pointerEvents: 'none' }} />
+        <BotanicalLeaf style={{ position: 'absolute', bottom: '-40%', right: '15%', width: '120px', height: '120px', color: '#1a6a51', opacity: 0.3, transform: 'rotate(-45deg)', pointerEvents: 'none' }} />
+
         <h1 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '1rem', position: 'relative', zIndex: 2 }}>
           Evaluasi Training
         </h1>

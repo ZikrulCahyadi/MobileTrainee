@@ -30,7 +30,19 @@ const Dashboard = () => {
     const fetchDashboard = async () => {
       try {
         const response = await api.get('/trainee/dashboard');
-        setData(response.data.data || response.data);
+        let dashboardData = response.data.data || response.data;
+        
+        // Cek langsung halaman evaluasinya untuk mendapatkan angka yang sebenarnya (override dari dashboard)
+        try {
+          const evalRes = await api.get('/trainee/evaluations/pending');
+          const evalData = evalRes.data.data || evalRes.data || [];
+          const evalArray = Array.isArray(evalData) ? evalData : [];
+          dashboardData.pendingEvaluations = evalArray.length;
+        } catch (e) {
+          console.error("Gagal mendapatkan jumlah evaluasi", e);
+        }
+
+        setData(dashboardData);
       } catch (error) {
         if (error.response?.status === 401) {
           localStorage.removeItem('auth_token');
