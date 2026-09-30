@@ -376,7 +376,7 @@ const Dashboard = () => {
                     width: '100%'
                   }}
                 >
-                  <Coffee size={20} strokeWidth={2.5} />
+                  <Home size={20} strokeWidth={2.5} />
                   Mess FR Academy
                 </a>
               </div>
