@@ -37,30 +37,39 @@ const Absen = () => {
       html5QrCode.start(
         { facingMode: "environment" }, // Pakai kamera belakang
         { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText) => {
+        async (decodedText) => {
           if (isProcessingScan) return;
           isProcessingScan = true;
 
-          setIsScanning(false);
-          html5QrCode.stop().catch(console.error);
+          // Hentikan scanner dulu
+          try {
+            await html5QrCode.stop();
+          } catch (e) {
+            console.error(e);
+          }
           
+          setIsScanning(false);
+          
+          // Munculkan UI Loading
           setFeedback({ type: 'loading', text: 'Memverifikasi data absensi Anda, mohon tunggu sebentar...' });
           
-          setTimeout(() => {
-            // Submit otomatis
-            api.post('/trainee/submit-attendance', {
+          // Tahan selama 2 detik secara presisi
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          // Submit otomatis
+          try {
+            const response = await api.post('/trainee/submit-attendance', {
                 qr_token: decodedText.trim()
-            }).then(response => {
-                setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
-                fetchHistory();
-            }).catch(err => {
-                let debugMsg = 'Tidak ada respon dari server.';
-                if (err.response && err.response.data) {
-                    debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
-                }
-                setFeedback({ type: 'error', text: debugMsg });
             });
-          }, 2000);
+            setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
+            fetchHistory();
+          } catch (err) {
+            let debugMsg = 'Tidak ada respon dari server.';
+            if (err.response && err.response.data) {
+                debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
+            }
+            setFeedback({ type: 'error', text: debugMsg });
+          }
         },
         (error) => {
           // Abaikan error per frame (misal QR belum ketemu)
