@@ -29,6 +29,7 @@ const Absen = () => {
 
   useEffect(() => {
     let html5QrCode = null;
+    let isProcessingScan = false;
     
     if (activeTab === 'scan' && isScanning) {
       html5QrCode = new Html5Qrcode("qr-reader");
@@ -37,6 +38,9 @@ const Absen = () => {
         { facingMode: "environment" }, // Pakai kamera belakang
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
+          if (isProcessingScan) return;
+          isProcessingScan = true;
+
           setIsScanning(false);
           html5QrCode.stop().catch(console.error);
           
@@ -80,20 +84,25 @@ const Absen = () => {
 
   const handleSubmitAbsen = async () => {
     if (!token) return setFeedback({ type: 'error', text: 'Silakan masukkan token QR Code!' });
-    try {
-        const response = await api.post('/trainee/submit-attendance', {
-            qr_token: token.trim()
-        });
-        setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
-        setToken('');
-        fetchHistory();
-    } catch (err) {
-        let debugMsg = 'Tidak ada respon dari server.';
-        if (err.response && err.response.data) {
-            debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
-        }
-        setFeedback({ type: 'error', text: debugMsg });
-    }
+    
+    setFeedback({ type: 'loading', text: 'Memverifikasi token absensi manual Anda...' });
+    
+    setTimeout(async () => {
+      try {
+          const response = await api.post('/trainee/submit-attendance', {
+              qr_token: token.trim()
+          });
+          setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
+          setToken('');
+          fetchHistory();
+      } catch (err) {
+          let debugMsg = 'Tidak ada respon dari server.';
+          if (err.response && err.response.data) {
+              debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
+          }
+          setFeedback({ type: 'error', text: debugMsg });
+      }
+    }, 2000);
   };
 
   return (
