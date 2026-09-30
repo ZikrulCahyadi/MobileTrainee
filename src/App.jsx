@@ -14,7 +14,7 @@ const Layout = ({ children }) => {
 
   return (
     <div className="mobile-container">
-      <div className="content-area" style={{ paddingBottom: showNav ? '70px' : '0' }}>
+      <div className={`content-area ${!showNav ? 'no-sidebar' : ''}`} style={{ paddingBottom: showNav ? '70px' : '0' }}>
         {children}
       </div>
       {showNav && <BottomNav />}

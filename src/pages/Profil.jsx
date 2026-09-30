@@ -126,8 +126,8 @@ const Profil = () => {
         <div className="card mb-6">
           <h3 className="font-bold text-primary-dark mb-6 text-lg">Data Peserta</h3>
           
-                    <div className="mb-4">
-            <p className="text-xs font-bold text-light mb-1 uppercase" style={{ opacity: 0.8, color: '#94a3b8' }}>Departemen / Kategori</p>
+          <div className="mb-4">
+            <p className="text-xs font-bold text-light mb-1 uppercase" style={{ opacity: 0.8, color: '#94a3b8' }}>Kategori</p>
             <p className="font-medium text-primary-dark text-sm">{trainee.program || '-'}</p>
           </div>
 

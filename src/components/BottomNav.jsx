@@ -12,70 +12,24 @@ const BottomNav = () => {
   ];
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      maxWidth: '480px',
-      margin: '0 auto',
-      backgroundColor: 'white',
-      display: 'flex',
-      justifyContent: 'space-around',
-      padding: '0.75rem 0.5rem calc(0.75rem + env(safe-area-inset-bottom))', // Aman untuk layar HP dengan poni/bar swipe (iPhone/Android modern)
-      borderTopLeftRadius: '28px',
-      borderTopRightRadius: '28px',
-      zIndex: 10,
-      boxShadow: '0 -8px 32px rgba(0,0,0,0.06)'
-    }}>
+    <div className="bottom-nav-container">
+      {/* Logo khusus Desktop di Sidebar */}
+      <div className="sidebar-logo">
+        <img src="https://www.helikonia.co.uk/wp-content/uploads/2021/03/first-resource-2.png" alt="First Resources Logo" style={{ width: '120px', height: 'auto', marginBottom: '1rem', display: 'block' }} />
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'white' }}>FR Academy</h2>
+      </div>
+
       {navItems.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
-          style={({ isActive }) => ({
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textDecoration: 'none',
-            flex: 1,
-            paddingBottom: '0.75rem',
-            position: 'relative'
-          })}
+          className={({ isActive }) => `nav-item-link ${isActive ? 'active' : ''}`}
         >
-          {({ isActive }) => (
-            <>
-              <div style={{
-                backgroundColor: isActive ? '#e8fcf1' : 'transparent',
-                padding: '8px 16px',
-                borderRadius: '12px',
-                marginBottom: '4px',
-                transition: 'all 0.2s ease-in-out'
-              }}>
-                <item.icon size={24} color={isActive ? '#047857' : '#64748b'} strokeWidth={isActive ? 2.5 : 2} />
-              </div>
-              <span style={{ 
-                color: isActive ? '#047857' : '#64748b', 
-                fontSize: '0.75rem', 
-                fontWeight: isActive ? '700' : '500' 
-              }}>
-                {item.label}
-              </span>
-              
-              {/* Active Bottom Indicator */}
-              {isActive && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: '15%',
-                  width: '70%',
-                  height: '4px',
-                  backgroundColor: '#047857',
-                  borderTopLeftRadius: '4px',
-                  borderTopRightRadius: '4px'
-                }} />
-              )}
-            </>
-          )}
+          <div className="nav-icon-wrapper">
+            <item.icon className="nav-icon" />
+          </div>
+          <span className="nav-label">{item.label}</span>
+          <div className="nav-indicator" />
         </NavLink>
       ))}
     </div>

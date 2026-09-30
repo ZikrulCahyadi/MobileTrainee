@@ -35,6 +35,7 @@ const Tugas = () => {
     } catch (error) {
       if (error.response?.status === 401) {
         localStorage.removeItem('auth_token');
+        localStorage.removeItem('trainee_data');
         navigate('/login');
       }
       console.error("Error fetching tasks", error);

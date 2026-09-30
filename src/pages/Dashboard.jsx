@@ -19,7 +19,7 @@ const Dashboard = () => {
     todayAttendance: false,
     pendingTasks: 0,
     pendingEvaluations: 0,
-    trainee: { name: '', program: '' },
+    trainee: JSON.parse(localStorage.getItem('trainee_data') || '{"name":"","program":""}'),
     todayClass: null,
     classInfo: null
   });
@@ -34,6 +34,7 @@ const Dashboard = () => {
       } catch (error) {
         if (error.response?.status === 401) {
           localStorage.removeItem('auth_token');
+          localStorage.removeItem('trainee_data');
           navigate('/login');
         }
         console.error("Error fetching dashboard data", error);
@@ -87,7 +88,7 @@ const Dashboard = () => {
         <BotanicalLeaf style={{ position: 'absolute', bottom: '-20%', right: '10%', width: '250px', height: '250px', color: '#1a6a51', opacity: 0.3, transform: 'rotate(-45deg)', pointerEvents: 'none' }} />
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 2 }}>
-          <div style={{
+          <div className="dashboard-mobile-logo" style={{
             backgroundColor: 'white',
             padding: '3px', // Diperkecil bordernya
             borderRadius: '0', 
@@ -102,7 +103,7 @@ const Dashboard = () => {
               style={{ width: '44px', height: 'auto', objectFit: 'contain', display: 'block' }} 
             />
           </div>
-          <Link to="/profil" style={{ textDecoration: 'none' }}>
+          <Link to="/profil" style={{ textDecoration: 'none', marginLeft: 'auto' }}>
             <div style={{
               width: '48px', height: '48px', borderRadius: '50%',
               backgroundColor: 'white', color: '#0d3829',
@@ -139,11 +140,11 @@ const Dashboard = () => {
       </div>
 
       {/* CARDS CONTAINER */}
-      <div style={{ marginTop: '-3.5rem', padding: '0 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative', zIndex: 3 }}>
+      <div className="dashboard-cards-grid" style={{ marginTop: '-3.5rem', padding: '0 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative', zIndex: 3 }}>
         
         {/* CERTIFICATE BANNER */}
         {showCertBanner && data.classInfo && Boolean(data.classInfo.is_passed) && (
-          <div style={{
+          <div className="dashboard-full-width-card" style={{
             backgroundColor: '#ecfdf5', border: '1px solid #10b981', borderRadius: '20px', padding: '1.25rem',
             position: 'relative', boxShadow: '0 8px 24px rgba(16, 185, 129, 0.1)'
           }}>
@@ -163,7 +164,7 @@ const Dashboard = () => {
         {/* ABSENSI CARD */}
         <div style={{ 
           backgroundColor: 'white', borderRadius: '20px', padding: '1.5rem', 
-          border: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          border: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center',
           boxShadow: '0 8px 24px rgba(0,0,0,0.02)', position: 'relative', overflow: 'hidden'
         }}>
           {/* Decorative Mint Background */}
@@ -248,7 +249,7 @@ const Dashboard = () => {
 
         {/* SCHEDULE CARD */}
         {!hasActiveSchedule ? (
-          <div style={{ 
+          <div className="dashboard-full-width-card" style={{ 
             background: 'linear-gradient(135deg, #0d3829 0%, #175e47 100%)', borderRadius: '20px', padding: '1.5rem', color: 'white',
             display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: '0 8px 24px rgba(13, 56, 41, 0.15)', position: 'relative', overflow: 'hidden'
           }}>
@@ -261,7 +262,7 @@ const Dashboard = () => {
             </div>
           </div>
         ) : (
-          <div style={{ 
+          <div className="dashboard-full-width-card" style={{ 
             background: 'linear-gradient(135deg, #0d3829 0%, #175e47 100%)', borderRadius: '20px', padding: '1.5rem', color: 'white',
             boxShadow: '0 8px 24px rgba(13, 56, 41, 0.15)', position: 'relative', overflow: 'hidden'
           }}>
@@ -358,3 +359,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+

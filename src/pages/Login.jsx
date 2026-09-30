@@ -34,8 +34,8 @@ const Login = () => {
   };
 
   return (
-    <div style={{ backgroundColor: 'var(--primary-dark)', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-      <div className="card" style={{ width: '100%', padding: '2.5rem 1.5rem', textAlign: 'center', borderRadius: '16px' }}>
+    <div style={{ backgroundColor: 'var(--primary-dark)', flex: 1, minHeight: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+      <div className="card" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 1.5rem', textAlign: 'center', borderRadius: '16px', margin: '0 auto' }}>
         <img 
           src="https://www.helikonia.co.uk/wp-content/uploads/2021/03/first-resource-2.png" 
           alt="First Resources Logo" 
