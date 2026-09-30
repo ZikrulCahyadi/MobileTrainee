@@ -273,28 +273,40 @@ const Absen = () => {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '1.5rem', backdropFilter: 'blur(2px)'
         }}>
-          <div className="card" style={{ 
-            width: '100%', maxWidth: '340px', padding: '2rem 1.5rem', 
-            textAlign: 'center', borderRadius: '16px', backgroundColor: '#fff',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-          }}>
-            <div style={{
-              width: '72px', height: '72px', borderRadius: '50%', margin: '0 auto 1.25rem',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              backgroundColor: feedback.type === 'success' ? '#dcfce3' : feedback.type === 'loading' ? '#e0f2fe' : '#fee2e2',
-              color: feedback.type === 'success' ? '#10b981' : feedback.type === 'loading' ? '#0284c7' : '#ef4444'
-            }}>
-              {feedback.type === 'success' ? <CheckCircle size={36} /> : feedback.type === 'loading' ? <Loader2 size={36} className="animate-spin" /> : <AlertCircle size={36} />}
+          {feedback.type === 'loading' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+              <style>{`
+                @keyframes muter {
+                  from { transform: rotate(0deg); }
+                  to { transform: rotate(360deg); }
+                }
+              `}</style>
+              <div style={{ animation: 'muter 1s linear infinite', color: '#fff' }}>
+                <Loader2 size={64} strokeWidth={2.5} />
+              </div>
             </div>
-            
-            <h3 className="font-bold text-xl mb-3" style={{ color: 'var(--primary-dark)' }}>
-              {feedback.type === 'success' ? 'Berhasil!' : feedback.type === 'loading' ? 'Memproses...' : 'Gagal'}
-            </h3>
-            <p className="text-sm text-light mb-6" style={{ lineHeight: '1.6' }}>
-              {feedback.text}
-            </p>
-            
-            {feedback.type !== 'loading' && (
+          ) : (
+            <div className="card" style={{ 
+              width: '100%', maxWidth: '340px', padding: '2rem 1.5rem', 
+              textAlign: 'center', borderRadius: '16px', backgroundColor: '#fff',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+            }}>
+              <div style={{
+                width: '72px', height: '72px', borderRadius: '50%', margin: '0 auto 1.25rem',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                backgroundColor: feedback.type === 'success' ? '#dcfce3' : '#fee2e2',
+                color: feedback.type === 'success' ? '#10b981' : '#ef4444'
+              }}>
+                {feedback.type === 'success' ? <CheckCircle size={36} /> : <AlertCircle size={36} />}
+              </div>
+              
+              <h3 className="font-bold text-xl mb-3" style={{ color: 'var(--primary-dark)' }}>
+                {feedback.type === 'success' ? 'Berhasil!' : 'Gagal'}
+              </h3>
+              <p className="text-sm text-light mb-6" style={{ lineHeight: '1.6' }}>
+                {feedback.text}
+              </p>
+              
               <button 
                 style={{ 
                   display: 'block',
@@ -308,8 +320,8 @@ const Absen = () => {
               >
                 Tutup
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>
