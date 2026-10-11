@@ -63,7 +63,7 @@ const Profil = () => {
   const confirmLogout = () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('trainee_data');
-    window.location.replace('/login');
+    navigate('/login', { replace: true });
   };
 
   return (

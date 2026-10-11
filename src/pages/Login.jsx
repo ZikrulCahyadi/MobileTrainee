@@ -9,16 +9,10 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Mencegah tombol back HP masuk kembali ke halaman dalam aplikasi setelah logout
   useEffect(() => {
-    window.history.pushState(null, '', window.location.href);
-    const handlePopState = () => {
-      window.history.pushState(null, '', window.location.href);
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
+    // Pastikan session bersih saat berada di halaman login
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('trainee_data');
   }, []);
 
   const DUMMY_TRAINEE = {
