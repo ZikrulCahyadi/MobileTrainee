@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IdCard } from 'lucide-react';
 import api from '../utils/api';
@@ -8,6 +8,18 @@ const Login = () => {
   const [nik, setNik] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Mencegah tombol back HP masuk kembali ke halaman dalam aplikasi setelah logout
+  useEffect(() => {
+    window.history.pushState(null, '', window.location.href);
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   const DUMMY_TRAINEE = {
     id: 999,

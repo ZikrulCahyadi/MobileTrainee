@@ -72,7 +72,24 @@ const Dashboard = () => {
     }
   };
 
-  const hasActiveSchedule = data.classInfo && data.classInfo.id;
+  const openExternalLink = (url) => {
+    if (!url) return;
+    try {
+      if (window.median && typeof window.median.open?.url === 'function') {
+        window.median.open.url({ url: url, target: '_blank' });
+      } else if (window.gonative && typeof window.gonative.open?.url === 'function') {
+        window.gonative.open.url({ url: url, target: '_blank' });
+      } else {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    } catch (e) {
+      window.location.href = url;
+    }
+  };
+
+  const hasActiveSchedule = Boolean(data.classInfo && data.classInfo.id);
+  const lmsUrl = data.classInfo?.lms_url || "https://e-learning.first-resources.com/";
+  const messUrl = data.classInfo?.mess_url || "https://mess-fr-academy.my.id";
 
   return (
     <div style={{ paddingBottom: '90px', backgroundColor: '#f4f7f6', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
@@ -361,14 +378,18 @@ const Dashboard = () => {
                   Akses materi dan modul pelatihan silahkan cek di LMS FR Academy.
                 </p>
                 <a 
-                  href={data.classInfo.lms_url || "https://e-learning.first-resources.com/"} 
+                  href={lmsUrl} 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openExternalLink(lmsUrl);
+                  }}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                     backgroundColor: '#86d16f', color: '#0d3829', padding: '0.875rem', borderRadius: '12px',
                     textDecoration: 'none', fontWeight: '800', boxShadow: '0 4px 12px rgba(134, 209, 111, 0.3)',
-                    width: '100%'
+                    width: '100%', cursor: 'pointer'
                   }}
                 >
                   <BookOpen size={20} strokeWidth={2.5} />
@@ -382,15 +403,19 @@ const Dashboard = () => {
                   Butuh penginapan selama masa pelatihan? Anda dapat melihat informasi melalui portal resmi Mess FR Academy.
                 </p>
                 <a 
-                  href={data.classInfo.mess_url || "https://mess-fr-academy.my.id"} 
+                  href={messUrl} 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openExternalLink(messUrl);
+                  }}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                     backgroundColor: 'white', color: '#0d3829', padding: '0.875rem', borderRadius: '12px',
                     textDecoration: 'none', fontWeight: '800', border: '2px solid #86d16f',
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                    width: '100%'
+                    width: '100%', cursor: 'pointer'
                   }}
                 >
                   <Home size={20} strokeWidth={2.5} />
