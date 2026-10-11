@@ -146,7 +146,11 @@ const Dashboard = () => {
           }}>
             <div style={{ width: '8px', height: '8px', backgroundColor: '#86d16f', borderRadius: '50%', boxShadow: '0 0 8px #86d16f' }}></div>
             <span style={{ fontSize: '0.75rem', fontWeight: '600', letterSpacing: '0.5px' }}>
-              {loading ? '...' : (data.todayClass || 'Peserta Pelatihan')}
+              {loading ? '...' : (
+                typeof data.todayClass === 'string'
+                  ? data.todayClass
+                  : (data.todayClass?.subject || data.trainee?.program || 'Peserta Pelatihan')
+              )}
             </span>
           </div>
         </div>

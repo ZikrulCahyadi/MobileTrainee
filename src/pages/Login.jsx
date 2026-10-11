@@ -9,10 +9,36 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const DUMMY_TRAINEE = {
+    id: 999,
+    nik: '123',
+    name: 'Test Peserta',
+    program: 'Managerial & Leadership',
+    batch: 'Batch 2026',
+    universitas: 'Universitas Indonesia',
+    jurusan: 'Manajemen Bisnis',
+    asal_daerah: 'Jakarta',
+    email: 'testpeserta@first-resources.com',
+    phone: '081234567890'
+  };
+
+  const handleLoginWithDummy = () => {
+    setLoading(true);
+    localStorage.setItem('auth_token', 'dummy-token-123');
+    localStorage.setItem('trainee_data', JSON.stringify(DUMMY_TRAINEE));
+    navigate('/', { replace: true });
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    // Shortcut langsung jika NIK adalah 123
+    if (nik.trim() === '123') {
+      handleLoginWithDummy();
+      return;
+    }
     
     try {
       const response = await api.post('/trainee/login', { nik });
@@ -22,7 +48,7 @@ const Login = () => {
       if (response.data.status === 'success' || token) {
         localStorage.setItem('auth_token', token);
         localStorage.setItem('trainee_data', JSON.stringify(trainee));
-        navigate('/');
+        navigate('/', { replace: true });
       } else {
         setError('Login gagal. Silakan periksa NIK Anda.');
       }
