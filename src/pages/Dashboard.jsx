@@ -208,7 +208,7 @@ const Dashboard = () => {
             <img 
               src={logoImg} 
               alt="First Resources Logo" 
-              style={{ width: '45px', height: 'auto', objectFit: 'contain', display: 'block', borderRadius: '0px' }} 
+              style={{ width: '54px', height: 'auto', objectFit: 'contain', display: 'block', borderRadius: '0px' }} 
             />
           </div>
           <Link to="/profil" style={{ textDecoration: 'none', marginLeft: 'auto' }}>
