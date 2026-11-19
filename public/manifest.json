@@ -1,17 +1,17 @@
 {
-    "name":  "Learning Activity",
-    "short_name":  "Learning",
-    "description":  "Learning Activity Application",
-    "start_url":  "/",
-    "display":  "standalone",
-    "background_color":  "#ffffff",
-    "theme_color":  "#16a34a",
-    "icons":  [
-                  {
-                      "src":  "/icon mobile.png",
-                      "sizes":  "512x512",
-                      "type":  "image/png",
-                      "purpose":  "any maskable"
-                  }
-              ]
+  "name": "Learning Activity",
+  "short_name": "Learning Activity",
+  "description": "Learning Activity - Aplikasi Peserta Pelatihan First Resources",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0d3829",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
