@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, Upload, X, Trash2, FileText, CheckCircle, AlertCircle, FileX, ClipboardList } from 'lucide-react';
+import { Clock, Upload, X, Trash2, FileText, CheckCircle, AlertCircle, FileX, ClipboardList, Camera, Image as ImageIcon } from 'lucide-react';
 import api from '../utils/api';
 import { useNavigate, Link } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
@@ -23,6 +23,7 @@ const Tugas = () => {
   const [isCanceling, setIsCanceling] = useState(false);
   
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
   useEffect(() => {
     fetchTasks();
@@ -66,6 +67,9 @@ const Tugas = () => {
     validateAndAddFiles(files);
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
+    }
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = null;
     }
   };
 
@@ -331,13 +335,11 @@ const Tugas = () => {
                   <div 
                     style={{ 
                       border: '2px dashed #cbd5e1', 
-                      borderRadius: '12px', 
-                      padding: '2.5rem 1rem', 
+                      borderRadius: '16px', 
+                      padding: '24px 16px', 
                       textAlign: 'center',
                       backgroundColor: '#f8fafc',
-                      marginBottom: '1.5rem',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      marginBottom: '1.25rem',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
@@ -345,22 +347,80 @@ const Tugas = () => {
                     }}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
                   >
-                    <Upload size={32} style={{ color: '#94a3b8', marginBottom: '0.75rem' }} />
-                    <p className="text-sm text-primary-dark font-medium mb-1">Pilih atau letakkan beberapa file di sini</p>
-                    <p className="text-xs text-light" style={{ marginBottom: '1.25rem' }}>Format PDF/Foto/Word/PPT maks 10MB per file</p>
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      backgroundColor: '#e8fcf1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#0d3829',
+                      marginBottom: '10px'
+                    }}>
+                      <Upload size={24} strokeWidth={2.2} />
+                    </div>
+                    <p style={{ fontSize: '13.5px', fontWeight: 'bold', color: '#0f4a38', margin: '0 0 3px 0' }}>
+                      Pilih file dokumen atau ambil foto langsung
+                    </p>
+                    <p style={{ fontSize: '11.5px', color: '#64748b', margin: '0 0 16px 0' }}>
+                      Bisa upload lebih dari 1 file/foto (maks 10MB per file)
+                    </p>
                     
-                    <button 
-                      className="btn-primary" 
-                      style={{ display: 'inline-block', width: 'auto', padding: '0.5rem 1.25rem', fontSize: '0.875rem', borderRadius: '8px', fontWeight: '600' }}
-                      onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                    >
-                      Browse Files
-                    </button>
+                    {/* DUAL ACTION BUTTONS: AMBIL FOTO & BROWSE FILE */}
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '340px' }}>
+                      <button 
+                        type="button"
+                        style={{
+                          flex: 1,
+                          height: '44px',
+                          backgroundColor: '#0d3829',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '10px',
+                          fontWeight: 'bold',
+                          fontSize: '13px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 6px rgba(13, 56, 41, 0.2)'
+                        }}
+                        onClick={() => cameraInputRef.current?.click()}
+                      >
+                        <Camera size={17} strokeWidth={2.2} />
+                        <span>Ambil Foto</span>
+                      </button>
+
+                      <button 
+                        type="button"
+                        style={{
+                          flex: 1,
+                          height: '44px',
+                          backgroundColor: '#f1f5f9',
+                          color: '#0f4a38',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '10px',
+                          fontWeight: 'bold',
+                          fontSize: '13px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload size={17} strokeWidth={2.2} />
+                        <span>Browse File</span>
+                      </button>
+                    </div>
                   </div>
                 )}
 
+                {/* HIDDEN INPUT FOR FILE BROWSER */}
                 <input 
                   type="file" 
                   multiple 
@@ -368,6 +428,16 @@ const Tugas = () => {
                   style={{ display: 'none' }} 
                   onChange={handleFileChange}
                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.ppt,.pptx"
+                />
+
+                {/* HIDDEN INPUT FOR DIRECT CAMERA PHOTO CAPTURE */}
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  capture="environment" 
+                  ref={cameraInputRef} 
+                  style={{ display: 'none' }} 
+                  onChange={handleFileChange}
                 />
 
                 {fileError && (
@@ -392,11 +462,37 @@ const Tugas = () => {
 
                 {selectedFiles.length > 0 && (
                   <div className="mb-2">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#0f4a38' }}>
+                        File Terpilih ({selectedFiles.length})
+                      </span>
+                    </div>
+
                     <div className="flex flex-col gap-3 mb-4">
                       {selectedFiles.map((file, idx) => (
-                        <div key={idx} className="flex items-center p-4 rounded-xl shadow-sm" style={{ border: '1px solid var(--primary-dark)', backgroundColor: '#f0fdf4' }}>
-                          <div style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '1rem', border: '1px solid #bbf7d0', marginRight: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <FileText size={28} style={{ color: '#ef4444' }} strokeWidth={1.5} />
+                        <div key={idx} className="flex items-center p-3 rounded-xl shadow-sm" style={{ border: '1px solid #bbf7d0', backgroundColor: '#f0fdf4' }}>
+                          <div style={{ 
+                            width: '46px', 
+                            height: '46px', 
+                            backgroundColor: '#fff', 
+                            borderRadius: '10px', 
+                            border: '1px solid #bbf7d0', 
+                            marginRight: '12px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            overflow: 'hidden',
+                            flexShrink: 0
+                          }}>
+                            {file.type.startsWith('image/') ? (
+                              <img 
+                                src={URL.createObjectURL(file)} 
+                                alt="preview" 
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                              />
+                            ) : (
+                              <FileText size={24} style={{ color: '#0d3829' }} strokeWidth={1.8} />
+                            )}
                           </div>
                           <div className="flex-1" style={{ minWidth: 0, overflow: 'hidden' }}>
                             <p 
@@ -404,17 +500,20 @@ const Tugas = () => {
                               style={{ 
                                 whiteSpace: 'nowrap', 
                                 overflow: 'hidden', 
-                                textOverflow: 'ellipsis' 
+                                textOverflow: 'ellipsis',
+                                margin: '0 0 2px 0'
                               }}
                             >
                               {file.name}
                             </p>
-                            <p className="text-xs text-light mb-2">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                            <p className="text-xs text-light" style={{ margin: '0 0 4px 0', color: '#64748b' }}>
+                              {(file.size / (1024 * 1024)).toFixed(2)} MB {file.type.startsWith('image/') ? '• Foto' : '• Dokumen'}
+                            </p>
                             <button 
                               onClick={() => removeFile(idx)} 
                               style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 'bold', padding: 0 }}
                             >
-                              <Trash2 size={14} />
+                              <Trash2 size={13} />
                               Hapus File
                             </button>
                           </div>
@@ -422,12 +521,52 @@ const Tugas = () => {
                       ))}
                     </div>
                     
-                    <div className="text-center mb-6 mt-4">
+                    {/* MORE ACTION BUTTONS: + FOTO LAGI & + TAMBAH FILE */}
+                    <div style={{ display: 'flex', gap: '8px', width: '100%', marginBottom: '16px' }}>
                       <button 
-                        style={{ background: 'none', border: 'none', color: 'var(--primary-dark)', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '700', textDecoration: 'underline' }}
+                        type="button"
+                        style={{
+                          flex: 1,
+                          height: '40px',
+                          backgroundColor: '#0d3829',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '10px',
+                          fontWeight: 'bold',
+                          fontSize: '12.5px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => cameraInputRef.current?.click()}
+                      >
+                        <Camera size={15} strokeWidth={2.2} />
+                        <span>+ Foto Lagi</span>
+                      </button>
+
+                      <button 
+                        type="button"
+                        style={{
+                          flex: 1,
+                          height: '40px',
+                          backgroundColor: '#f1f5f9',
+                          color: '#0f4a38',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '10px',
+                          fontWeight: 'bold',
+                          fontSize: '12.5px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          cursor: 'pointer'
+                        }}
                         onClick={() => fileInputRef.current?.click()}
                       >
-                        + Tambah File Lain
+                        <Upload size={15} strokeWidth={2.2} />
+                        <span>+ Tambah File</span>
                       </button>
                     </div>
                   </div>
