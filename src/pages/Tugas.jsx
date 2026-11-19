@@ -462,21 +462,37 @@ const Tugas = () => {
 
                 {selectedFiles.length > 0 && (
                   <div className="mb-2">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#0f4a38' }}>
-                        File Terpilih ({selectedFiles.length})
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#0f4a38', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>File Terpilih</span>
+                        <span style={{ backgroundColor: '#e8fcf1', color: '#047857', fontSize: '11px', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>
+                          {selectedFiles.length}
+                        </span>
                       </span>
                     </div>
 
-                    <div className="flex flex-col gap-3 mb-4">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
                       {selectedFiles.map((file, idx) => (
-                        <div key={idx} className="flex items-center p-3 rounded-xl shadow-sm" style={{ border: '1px solid #bbf7d0', backgroundColor: '#f0fdf4' }}>
+                        <div 
+                          key={idx} 
+                          style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            backgroundColor: '#ffffff', 
+                            border: '1px solid #e2e8f0', 
+                            borderRadius: '12px', 
+                            padding: '10px 12px', 
+                            boxShadow: '0 1px 4px rgba(0, 0, 0, 0.04)',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          {/* THUMBNAIL / PREVIEW */}
                           <div style={{ 
-                            width: '46px', 
-                            height: '46px', 
-                            backgroundColor: '#fff', 
-                            borderRadius: '10px', 
-                            border: '1px solid #bbf7d0', 
+                            width: '44px', 
+                            height: '44px', 
+                            backgroundColor: '#f1f5f9', 
+                            borderRadius: '8px', 
+                            border: '1px solid #e2e8f0', 
                             marginRight: '12px', 
                             display: 'flex', 
                             alignItems: 'center', 
@@ -491,32 +507,54 @@ const Tugas = () => {
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                               />
                             ) : (
-                              <FileText size={24} style={{ color: '#0d3829' }} strokeWidth={1.8} />
+                              <FileText size={22} style={{ color: '#0d3829' }} strokeWidth={1.8} />
                             )}
                           </div>
-                          <div className="flex-1" style={{ minWidth: 0, overflow: 'hidden' }}>
+
+                          {/* FILE INFO */}
+                          <div style={{ flex: 1, minWidth: 0, paddingRight: '8px' }}>
                             <p 
-                              className="text-sm font-bold text-primary-dark mb-1" 
                               style={{ 
+                                fontSize: '13px',
+                                fontWeight: '700',
+                                color: '#0f4a38',
                                 whiteSpace: 'nowrap', 
                                 overflow: 'hidden', 
                                 textOverflow: 'ellipsis',
                                 margin: '0 0 2px 0'
                               }}
+                              title={file.name}
                             >
                               {file.name}
                             </p>
-                            <p className="text-xs text-light" style={{ margin: '0 0 4px 0', color: '#64748b' }}>
-                              {(file.size / (1024 * 1024)).toFixed(2)} MB {file.type.startsWith('image/') ? '• Foto' : '• Dokumen'}
+                            <p style={{ margin: 0, fontSize: '11.5px', color: '#64748b', fontWeight: '500' }}>
+                              {(file.size / (1024 * 1024)).toFixed(2)} MB • {file.type.startsWith('image/') ? 'Foto Kamera (JPG)' : 'Dokumen'}
                             </p>
-                            <button 
-                              onClick={() => removeFile(idx)} 
-                              style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 'bold', padding: 0 }}
-                            >
-                              <Trash2 size={13} />
-                              Hapus File
-                            </button>
                           </div>
+
+                          {/* DELETE ICON BUTTON */}
+                          <button 
+                            type="button"
+                            onClick={() => removeFile(idx)} 
+                            title="Hapus file ini"
+                            style={{ 
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              backgroundColor: '#fee2e2',
+                              border: 'none',
+                              color: '#ef4444', 
+                              cursor: 'pointer', 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                              padding: 0,
+                              transition: 'background-color 0.15s ease'
+                            }}
+                          >
+                            <Trash2 size={15} strokeWidth={2.2} />
+                          </button>
                         </div>
                       ))}
                     </div>
