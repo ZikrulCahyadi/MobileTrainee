@@ -8,6 +8,7 @@ const Tugas = () => {
   const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [emptySubtitle, setEmptySubtitle] = useState('Saat ini belum ada tugas baru yang perlu dikerjakan.');
   
   // States for upload preview UI
   const [expandedTaskId, setExpandedTaskId] = useState(null);
@@ -31,7 +32,13 @@ const Tugas = () => {
     try {
       setLoading(true);
       const response = await api.get('/trainee/tasks');
-      setTasks(response.data.data || []);
+      const list = response.data?.data || (Array.isArray(response.data) ? response.data : []);
+      setTasks(list);
+      if (response.data?.message) {
+        setEmptySubtitle(response.data.message);
+      } else {
+        setEmptySubtitle('Saat ini belum ada tugas baru yang perlu dikerjakan.');
+      }
     } catch (error) {
       if (error.response?.status === 401) {
         localStorage.removeItem('auth_token');
@@ -218,35 +225,54 @@ const Tugas = () => {
               width: '64px',
               height: '64px',
               borderRadius: '50%',
-              backgroundColor: '#e8fcf1',
-              color: '#047857',
+              backgroundColor: emptySubtitle.toLowerCase().includes('absensi') ? '#FEF3C7' : '#e8fcf1',
+              color: emptySubtitle.toLowerCase().includes('absensi') ? '#D97706' : '#047857',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: '16px'
             }}>
-              <ClipboardList size={32} strokeWidth={2.2} />
+              {emptySubtitle.toLowerCase().includes('absensi') ? (
+                <AlertCircle size={32} strokeWidth={2.2} />
+              ) : (
+                <ClipboardList size={32} strokeWidth={2.2} />
+              )}
             </div>
             
             <h3 style={{ fontSize: '17px', fontWeight: 'bold', color: '#0f4a38', margin: '0 0 6px 0' }}>
-              Belum Ada Tugas
+              {emptySubtitle.toLowerCase().includes('absensi') ? 'Perhatian' : 'Belum Ada Tugas'}
             </h3>
-            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px 0', lineHeight: '1.5' }}>
-              Saat ini belum ada tugas baru yang perlu dikerjakan.
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px 0', lineHeight: '1.5', maxWidth: '320px' }}>
+              {emptySubtitle}
             </p>
             
-            <Link to="/" style={{
-              backgroundColor: '#0d3829',
-              color: '#ffffff',
-              padding: '12px 24px',
-              borderRadius: '12px',
-              fontWeight: 'bold',
-              fontSize: '14px',
-              textDecoration: 'none',
-              boxShadow: '0 4px 12px rgba(13, 56, 41, 0.2)'
-            }}>
-              Kembali ke Dashboard
-            </Link>
+            {emptySubtitle.toLowerCase().includes('absensi') ? (
+              <Link to="/absen" style={{
+                backgroundColor: '#0d3829',
+                color: '#ffffff',
+                padding: '12px 24px',
+                borderRadius: '12px',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                textDecoration: 'none',
+                boxShadow: '0 4px 12px rgba(13, 56, 41, 0.2)'
+              }}>
+                Lakukan Absensi Sekarang
+              </Link>
+            ) : (
+              <Link to="/" style={{
+                backgroundColor: '#0d3829',
+                color: '#ffffff',
+                padding: '12px 24px',
+                borderRadius: '12px',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                textDecoration: 'none',
+                boxShadow: '0 4px 12px rgba(13, 56, 41, 0.2)'
+              }}>
+                Kembali ke Dashboard
+              </Link>
+            )}
           </div>
         ) : (
           tasks.map((task, index) => (
