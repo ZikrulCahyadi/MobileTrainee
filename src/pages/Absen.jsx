@@ -41,26 +41,16 @@ const Absen = () => {
           if (isProcessingScan) return;
           isProcessingScan = true;
 
-          // Pause (bekukan) kamera dan langsung munculkan pop-up loading
-          try {
-            html5QrCode.pause();
-          } catch (e) {
-            console.error(e);
-          }
-          setFeedback({ type: 'loading', text: 'Memverifikasi data absensi Anda, mohon tunggu sebentar...' });
-          
-          // Tahan selama 2 detik sebelum kamera dimatikan dan pop-up hasil muncul
-          await new Promise(resolve => setTimeout(resolve, 2000));
-
-          // Hentikan scanner sepenuhnya
+          // Hentikan scanner segera
           try {
             await html5QrCode.stop();
           } catch (e) {
             console.error(e);
           }
           setIsScanning(false);
+          setFeedback({ type: 'loading', text: 'Memverifikasi absensi Anda...' });
 
-          // Submit otomatis
+          // Submit langsung tanpa delay
           try {
             const response = await api.post('/trainee/submit-attendance', {
                 qr_token: decodedText.trim(),
@@ -102,24 +92,22 @@ const Absen = () => {
     
     setFeedback({ type: 'loading', text: 'Memverifikasi token absensi manual Anda...' });
     
-    setTimeout(async () => {
-      try {
-          const response = await api.post('/trainee/submit-attendance', {
-              qr_token: token.trim(),
-              qr_code: token.trim()
-          });
-          localStorage.setItem('attended_today', 'true');
-          setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
-          setToken('');
-          fetchHistory();
-      } catch (err) {
-          let debugMsg = 'Tidak ada respon dari server.';
-          if (err.response && err.response.data) {
-              debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
-          }
-          setFeedback({ type: 'error', text: debugMsg });
+    try {
+      const response = await api.post('/trainee/submit-attendance', {
+          qr_token: token.trim(),
+          qr_code: token.trim()
+      });
+      localStorage.setItem('attended_today', 'true');
+      setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
+      setToken('');
+      fetchHistory();
+    } catch (err) {
+      let debugMsg = 'Tidak ada respon dari server.';
+      if (err.response && err.response.data) {
+          debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
       }
-    }, 2000);
+      setFeedback({ type: 'error', text: debugMsg });
+    }
   };
 
   return (

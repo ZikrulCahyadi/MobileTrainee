@@ -10,7 +10,8 @@ import BottomNav from './components/BottomNav';
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const showNav = location.pathname !== '/login';
+  const token = localStorage.getItem('auth_token');
+  const showNav = Boolean(token) && location.pathname !== '/login';
 
   return (
     <div className="mobile-container">
@@ -41,7 +42,7 @@ function App() {
           <Route path="/tugas" element={<ProtectedRoute><Tugas /></ProtectedRoute>} />
           <Route path="/profil" element={<ProtectedRoute><Profil /></ProtectedRoute>} />
           <Route path="/evaluasi" element={<ProtectedRoute><Evaluasi /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to={localStorage.getItem('auth_token') ? "/" : "/login"} replace />} />
         </Routes>
       </Layout>
     </BrowserRouter>

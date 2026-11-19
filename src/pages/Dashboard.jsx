@@ -61,15 +61,19 @@ const BotanicalLeaf = ({ style }) => (
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const cachedTrainee = JSON.parse(localStorage.getItem('trainee_data') || 'null');
+  const cachedClass = JSON.parse(localStorage.getItem('class_info') || 'null');
+  const cachedAttended = localStorage.getItem('attended_today') === 'true';
+
   const [data, setData] = useState({
-    todayAttendance: localStorage.getItem('attended_today') === 'true',
+    todayAttendance: cachedAttended,
     pendingTasks: 0,
     pendingEvaluations: 0,
-    trainee: JSON.parse(localStorage.getItem('trainee_data') || '{"name":"","program":""}'),
+    trainee: cachedTrainee || { name: '', program: '' },
     todayClass: null,
-    classInfo: JSON.parse(localStorage.getItem('class_info') || 'null')
+    classInfo: cachedClass
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedTrainee?.name);
   const [showCertBanner, setShowCertBanner] = useState(true);
 
   useEffect(() => {
@@ -77,35 +81,39 @@ const Dashboard = () => {
 
     const fetchDashboard = async (isBackground = false) => {
       try {
-        const response = await api.get('/trainee/dashboard');
-        let dashboardData = response.data.data || response.data;
-        
-        // Cek langsung halaman evaluasinya untuk mendapatkan angka yang sebenarnya (override dari dashboard)
-        try {
-          const evalRes = await api.get('/trainee/evaluations/pending');
-          const evalData = evalRes.data.data || evalRes.data || [];
-          const evalArray = Array.isArray(evalData) ? evalData : [];
-          dashboardData.pendingEvaluations = evalArray.length;
-        } catch (e) {
-          console.error("Gagal mendapatkan jumlah evaluasi", e);
-        }
+        const [dashResult, evalResult] = await Promise.allSettled([
+          api.get('/trainee/dashboard'),
+          api.get('/trainee/evaluations/pending')
+        ]);
 
         if (!isMounted) return;
 
-        if (dashboardData.todayAttendance !== undefined) {
-          localStorage.setItem('attended_today', dashboardData.todayAttendance ? 'true' : 'false');
-        }
-        if (dashboardData.classInfo) {
-          localStorage.setItem('class_info', JSON.stringify(dashboardData.classInfo));
-        }
+        if (dashResult.status === 'fulfilled') {
+          const response = dashResult.value;
+          let dashboardData = response.data.data || response.data || {};
+          
+          if (evalResult.status === 'fulfilled') {
+            const evalData = evalResult.value.data.data || evalResult.value.data || [];
+            dashboardData.pendingEvaluations = Array.isArray(evalData) ? evalData.length : 0;
+          }
 
-        setData(dashboardData);
-      } catch (error) {
-        if (error.response?.status === 401) {
+          if (dashboardData.todayAttendance !== undefined) {
+            localStorage.setItem('attended_today', dashboardData.todayAttendance ? 'true' : 'false');
+          }
+          if (dashboardData.classInfo) {
+            localStorage.setItem('class_info', JSON.stringify(dashboardData.classInfo));
+          }
+          if (dashboardData.trainee) {
+            localStorage.setItem('trainee_data', JSON.stringify(dashboardData.trainee));
+          }
+
+          setData(dashboardData);
+        } else if (dashResult.reason?.response?.status === 401) {
           localStorage.removeItem('auth_token');
           localStorage.removeItem('trainee_data');
-          navigate('/login');
+          navigate('/login', { replace: true });
         }
+      } catch (error) {
         console.error("Error fetching dashboard data", error);
       } finally {
         if (!isBackground && isMounted) {
@@ -224,7 +232,7 @@ const Dashboard = () => {
             color: '#ffffff',
             display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
           }}>
-            {loading ? 'Memuat...' : (data.trainee?.name || 'MASJAYA')}
+            {data.trainee?.name || (loading ? 'Memuat...' : 'Peserta')}
           </h1>
           
           <div style={{ 
@@ -233,11 +241,9 @@ const Dashboard = () => {
           }}>
             <div style={{ width: '8px', height: '8px', backgroundColor: '#86d16f', borderRadius: '50%', boxShadow: '0 0 6px rgba(134,209,111,0.6)' }}></div>
             <span style={{ fontSize: '12px', fontWeight: '700', color: '#86d16f' }}>
-              {loading ? '...' : (
-                data.trainee?.program || 
+              {data.trainee?.program || 
                 (typeof data.todayClass === 'string' ? data.todayClass : data.todayClass?.subject) ||
-                'Supervisory'
-              )}
+                'Supervisory'}
             </span>
           </div>
         </div>
@@ -281,7 +287,7 @@ const Dashboard = () => {
              <div>
                <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 2px 0', fontWeight: '700' }}>Absensi Hari Ini</p>
                <p style={{ fontSize: '18px', fontWeight: '800', color: data.todayAttendance ? '#047857' : '#0f4a38', margin: 0 }}>
-                 {loading ? '...' : (data.todayAttendance ? 'Sudah Absen' : 'Belum Absen')}
+                 {data.todayAttendance ? 'Sudah Absen' : 'Belum Absen'}
                </p>
              </div>
           </div>
