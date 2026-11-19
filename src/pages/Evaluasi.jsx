@@ -97,87 +97,125 @@ export default function Evaluasi() {
     }
   };
 
-  if (loading) return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-light)' }}>Memuat data...</div>;
-  
-  if (pendingSessions.length === 0 && !showSuccessModal) {
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center', marginTop: '3rem' }}>
-        <div style={{ width: '64px', height: '64px', backgroundColor: hasSubmitted ? '#dcfce3' : '#f1f5f9', color: hasSubmitted ? '#16a34a' : '#64748b', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-          {hasSubmitted ? <Check size={32} strokeWidth={3} /> : <FileX size={32} />}
-        </div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-dark)', marginBottom: '0.5rem' }}>
-          {hasSubmitted ? 'Pelatihan Telah Dievaluasi' : 'Belum Ada Evaluasi'}
-        </h2>
-        <p style={{ color: 'var(--text-light)', fontSize: '0.875rem' }}>
-          {hasSubmitted ? 'Terima kasih atas partisipasi Anda.' : 'Saat ini tidak ada sesi pelatihan yang perlu Anda evaluasi.'}
-        </p>
-        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-          <button 
-            type="button" 
-            style={{ 
-              backgroundColor: '#e2e8f0', 
-              color: '#334155', 
-              border: 'none', 
-              borderRadius: '12px', 
-              padding: '0.75rem 1.25rem', 
-              fontWeight: '600', 
-              cursor: 'pointer' 
-            }}
-            onClick={() => { setLoading(true); fetchPending(); }}
-          >
-            Periksa Ulang
-          </button>
-          <button 
-            className="btn-primary" 
-            style={{ padding: '0.75rem 1.5rem', borderRadius: '12px' }}
-            onClick={() => navigate('/')}
-          >
-            Kembali ke Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ paddingBottom: '6rem', backgroundColor: 'var(--bg-color)', minHeight: '100vh' }}>
-      
-      {/* HEADER EVALUASI */}
-      <div className="dashboard-header-container" style={{ 
+    <div style={{ paddingBottom: '90px', backgroundColor: '#f4f7f6', minHeight: '100vh' }}>
+      {/* PALM GREEN HEADER */}
+      <div style={{ 
         background: 'linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%)', 
-        color: 'white', 
-        padding: '1.5rem', 
-        paddingTop: '2.5rem', 
-        borderBottomLeftRadius: '32px', 
-        borderBottomRightRadius: '32px', 
-        boxShadow: '0 10px 30px rgba(13, 56, 41, 0.2)', 
-        marginBottom: '1.5rem',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        color: 'white', 
+        padding: '2.5rem 1.25rem 3.5rem', 
+        borderBottomLeftRadius: '28px', 
+        borderBottomRightRadius: '28px', 
+        boxShadow: '0 8px 24px rgba(13, 56, 41, 0.15)'
       }}>
-        {/* Glow & Decorative elements to match dashboard slightly */}
-        <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(134,209,111,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        
-        {/* Decorative Leaves */}
-        <BotanicalLeaf style={{ position: 'absolute', top: '-20%', right: '-5%', width: '150px', height: '150px', color: '#114b3d', opacity: 0.4, transform: 'rotate(15deg)', pointerEvents: 'none' }} />
-        <BotanicalLeaf style={{ position: 'absolute', bottom: '-40%', right: '15%', width: '120px', height: '120px', color: '#1a6a51', opacity: 0.3, transform: 'rotate(-45deg)', pointerEvents: 'none' }} />
-
-        <h1 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '1rem', position: 'relative', zIndex: 2 }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#ffffff' }}>
           Evaluasi Pelatihan
         </h1>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', position: 'relative', zIndex: 2 }}>
-          <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>
-            <span style={{ fontWeight: 'normal', opacity: 0.75 }}>Materi: </span>
-            <span style={{ fontWeight: 'bold' }}>{activeSession?.title || activeSession?.materi || 'Pelatihan'}</span>
+        {activeSession ? (
+          <div style={{ marginTop: '6px' }}>
+            <p style={{ fontSize: '13.5px', fontWeight: 'bold', color: '#D1FAE5', margin: '0 0 2px 0' }}>
+              Materi: {activeSession.title || activeSession.materi || 'Pelatihan'}
+            </p>
+            <p style={{ fontSize: '12.5px', color: '#A7F3D0', margin: 0 }}>
+              Trainer: {activeSession.trainer_name || activeSession.trainer || '-'}
+            </p>
+          </div>
+        ) : (
+          <p style={{ fontSize: '13px', color: '#D1FAE5', margin: '4px 0 0 0' }}>
+            Penilaian instruktur &amp; modul pelatihan
           </p>
-          <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>
-            <span style={{ fontWeight: 'normal', opacity: 0.75 }}>Trainer: </span>
-            <span style={{ fontWeight: 'bold' }}>{activeSession?.trainer_name || activeSession?.trainer || '-'}</span>
-          </p>
-        </div>
+        )}
       </div>
-      
-      <form onSubmit={handleSubmit} className="dashboard-form-container" style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+
+      {/* OVERLAPPING CONTENT CONTAINER */}
+      <div style={{ marginTop: '-1.75rem', padding: '0 16px', position: 'relative', zIndex: 2 }}>
+        {loading ? (
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '20px',
+            border: '1px solid #f1f5f9',
+            padding: '2.5rem 1rem',
+            textAlign: 'center',
+            color: '#64748b',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
+          }}>
+            Memuat evaluasi...
+          </div>
+        ) : (pendingSessions.length === 0 && !showSuccessModal) ? (
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '20px',
+            border: '1px solid #f1f5f9',
+            padding: '36px 24px',
+            textAlign: 'center',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              backgroundColor: hasSubmitted ? '#dcfce7' : '#e8fcf1',
+              color: hasSubmitted ? '#16a34a' : '#047857',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '16px'
+            }}>
+              {hasSubmitted ? <Check size={32} strokeWidth={2.5} /> : <CheckCircle size={32} strokeWidth={2.2} />}
+            </div>
+            
+            <h3 style={{ fontSize: '17px', fontWeight: 'bold', color: '#0f4a38', margin: '0 0 6px 0' }}>
+              {hasSubmitted ? 'Pelatihan Telah Dievaluasi' : 'Belum Ada Evaluasi Aktif'}
+            </h3>
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px 0', lineHeight: '1.5' }}>
+              {hasSubmitted 
+                ? 'Terima kasih atas partisipasi Anda dalam mengevaluasi pelatihan ini.' 
+                : 'Saat ini tidak ada sesi pelatihan yang perlu Anda evaluasi.'}
+            </p>
+            
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', width: '100%', flexWrap: 'wrap' }}>
+              <button 
+                type="button" 
+                style={{ 
+                  backgroundColor: '#f1f5f9', 
+                  color: '#334155', 
+                  border: '1px solid #e2e8f0', 
+                  borderRadius: '12px', 
+                  padding: '12px 20px', 
+                  fontWeight: 'bold', 
+                  fontSize: '13px',
+                  cursor: 'pointer' 
+                }}
+                onClick={() => { setLoading(true); fetchPending(); }}
+              >
+                Periksa Ulang
+              </button>
+              <button 
+                type="button"
+                style={{
+                  backgroundColor: '#0d3829',
+                  color: '#ffffff',
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(13, 56, 41, 0.2)'
+                }}
+                onClick={() => navigate('/')}
+              >
+                Kembali ke Dashboard
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', width: '100%' }}>
         {EVALUATION_QUESTIONS.map((cat, cIdx) => (
           <div key={cIdx} className="card" style={{ padding: '1.25rem' }}>
             <h3 style={{ fontWeight: 'bold', color: 'var(--primary-dark)', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '1rem', fontSize: '0.875rem' }}>
@@ -262,6 +300,8 @@ export default function Evaluasi() {
           {submitting ? 'Mengirim...' : 'Kirim Evaluasi'}
         </button>
       </form>
+        )}
+      </div>
 
       {/* Feedback Modal Popup */}
       {feedback && (

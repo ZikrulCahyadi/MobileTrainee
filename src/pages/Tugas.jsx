@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, Upload, X, Trash2, FileText, CheckCircle, AlertCircle, FileX } from 'lucide-react';
+import { Clock, Upload, X, Trash2, FileText, CheckCircle, AlertCircle, FileX, ClipboardList } from 'lucide-react';
 import api from '../utils/api';
 import { useNavigate, Link } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
@@ -168,37 +168,88 @@ const Tugas = () => {
   };
 
   return (
-    <div className="p-4 dashboard-form-container">
-      <div className="mb-6 mt-2">
-        <h2 className="text-xl font-bold text-primary-dark mb-1">Tugas Pelatihan</h2>
-        <p className="text-sm text-light">Daftar tugas dari materi yang telah diikuti.</p>
+    <div style={{ backgroundColor: '#f4f7f6', minHeight: '100vh', paddingBottom: '90px' }}>
+      {/* PALM GREEN HEADER */}
+      <div style={{
+        background: 'linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+        color: 'white',
+        padding: '2.5rem 1.25rem 3.5rem',
+        borderBottomLeftRadius: '28px',
+        borderBottomRightRadius: '28px',
+        boxShadow: '0 8px 24px rgba(13, 56, 41, 0.15)'
+      }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#ffffff' }}>
+          Tugas Pelatihan
+        </h1>
+        <p style={{ fontSize: '13px', color: '#D1FAE5', margin: 0 }}>
+          Daftar tugas &amp; modul pelatihan
+        </p>
       </div>
 
-      {loading ? (
-        <p className="text-center text-light mt-10">Memuat tugas...</p>
-      ) : tasks.length === 0 ? (
-        <div className="card" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
+      {/* OVERLAPPING CONTENT CONTAINER */}
+      <div style={{ marginTop: '-1.75rem', padding: '0 16px', position: 'relative', zIndex: 2 }}>
+        {loading ? (
           <div style={{
-            width: '80px', height: '80px', borderRadius: '50%', margin: '0 auto 1.5rem',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backgroundColor: '#f8fafc', color: '#64748b'
+            backgroundColor: '#ffffff',
+            borderRadius: '20px',
+            border: '1px solid #f1f5f9',
+            padding: '2.5rem 1rem',
+            textAlign: 'center',
+            color: '#64748b',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
           }}>
-            <FileX size={40} />
+            Memuat tugas...
           </div>
-          
-          <h3 className="font-bold text-xl mb-3" style={{ color: 'var(--primary-dark)' }}>
-            Belum Ada Tugas
-          </h3>
-          <p className="text-sm text-light mb-8" style={{ lineHeight: '1.6' }}>
-            Saat ini tidak ada tugas pelatihan yang perlu Anda selesaikan.
-          </p>
-          
-          <Link to="/" className="btn-primary" style={{ display: 'inline-block', width: '100%', textDecoration: 'none' }}>
-            Kembali ke Dashboard
-          </Link>
-        </div>
-      ) : (
-        tasks.map((task, index) => (
+        ) : tasks.length === 0 ? (
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '20px',
+            border: '1px solid #f1f5f9',
+            padding: '36px 24px',
+            textAlign: 'center',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              backgroundColor: '#e8fcf1',
+              color: '#047857',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '16px'
+            }}>
+              <ClipboardList size={32} strokeWidth={2.2} />
+            </div>
+            
+            <h3 style={{ fontSize: '17px', fontWeight: 'bold', color: '#0f4a38', margin: '0 0 6px 0' }}>
+              Belum Ada Tugas
+            </h3>
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px 0', lineHeight: '1.5' }}>
+              Saat ini belum ada tugas baru yang perlu dikerjakan.
+            </p>
+            
+            <Link to="/" style={{
+              backgroundColor: '#0d3829',
+              color: '#ffffff',
+              padding: '12px 24px',
+              borderRadius: '12px',
+              fontWeight: 'bold',
+              fontSize: '14px',
+              textDecoration: 'none',
+              boxShadow: '0 4px 12px rgba(13, 56, 41, 0.2)'
+            }}>
+              Kembali ke Dashboard
+            </Link>
+          </div>
+        ) : (
+          tasks.map((task, index) => (
           <div className="card" key={task.id || `task-${index}`} style={{ overflow: 'hidden' }}>
             <div className="flex justify-between items-start mb-2">
               <h3 className="font-bold text-light text-xs uppercase">{task.session || 'Materi'}</h3>
@@ -391,6 +442,7 @@ const Tugas = () => {
           </div>
         ))
       )}
+      </div>
 
       {/* Confirmation Modal for Canceling Submission */}
       {cancelConfirmTaskId && (
