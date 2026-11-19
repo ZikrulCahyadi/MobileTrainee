@@ -273,20 +273,20 @@ const Dashboard = () => {
 
         {/* CARD 1: ABSENSI HARI INI */}
         <div style={{ 
-          backgroundColor: '#ffffff', borderRadius: '20px', padding: '18px 20px', 
-          border: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center',
+          backgroundColor: '#ffffff', borderRadius: '20px', padding: '16px 18px', 
+          border: '1px solid #f1f5f9', display: 'flex', flexWrap: 'nowrap', gap: '10px', justifyContent: 'space-between', alignItems: 'center',
           boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
              <div style={{ 
-               width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#e8fcf1', 
+               width: '46px', height: '46px', borderRadius: '50%', backgroundColor: '#e8fcf1', 
                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#047857', flexShrink: 0 
              }}>
-               <CheckCircle size={26} strokeWidth={2.5} />
+               <CheckCircle size={24} strokeWidth={2.5} />
              </div>
-             <div>
-               <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 2px 0', fontWeight: '700' }}>Absensi Hari Ini</p>
-               <p style={{ fontSize: '18px', fontWeight: '800', color: data.todayAttendance ? '#047857' : '#0f4a38', margin: 0 }}>
+             <div style={{ minWidth: 0 }}>
+               <p style={{ fontSize: '11.5px', color: '#64748b', margin: '0 0 2px 0', fontWeight: '700', whiteSpace: 'nowrap' }}>Absensi Hari Ini</p>
+               <p style={{ fontSize: '17px', fontWeight: '800', color: data.todayAttendance ? '#047857' : '#0f4a38', margin: 0, whiteSpace: 'nowrap' }}>
                  {data.todayAttendance ? 'Sudah Absen' : 'Belum Absen'}
                </p>
              </div>
@@ -294,11 +294,11 @@ const Dashboard = () => {
           {!data.todayAttendance && (
             <Link to="/absen" style={{ 
               backgroundColor: '#f43f5e', color: 'white', textDecoration: 'none',
-              height: '44px', padding: '0 16px', borderRadius: '12px', fontWeight: '700', fontSize: '13px',
-              boxShadow: '0 4px 12px rgba(244, 63, 94, 0.25)', display: 'inline-flex', alignItems: 'center', gap: '8px',
-              flexShrink: 0
+              height: '42px', padding: '0 16px', borderRadius: '12px', fontWeight: '700', fontSize: '13px',
+              boxShadow: '0 4px 12px rgba(244, 63, 94, 0.25)', display: 'inline-flex', alignItems: 'center', gap: '6px',
+              flexShrink: 0, whiteSpace: 'nowrap'
             }}>
-              <QrCode size={18} strokeWidth={2.2} />
+              <QrCode size={17} strokeWidth={2.2} />
               Scan QR
             </Link>
           )}
