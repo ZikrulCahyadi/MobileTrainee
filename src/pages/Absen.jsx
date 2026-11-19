@@ -180,7 +180,7 @@ const Absen = () => {
   };
 
   return (
-    <div style={{ backgroundColor: '#f4f7f6', minHeight: '100vh', paddingBottom: '16px' }}>
+    <div style={{ backgroundColor: '#f4f7f6', minHeight: '100vh', paddingBottom: '36px' }}>
       {/* PALM GREEN HEADER */}
       <div style={{
         background: 'linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%)',

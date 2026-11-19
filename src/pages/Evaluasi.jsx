@@ -98,7 +98,7 @@ export default function Evaluasi() {
   };
 
   return (
-    <div style={{ paddingBottom: '16px', backgroundColor: '#f4f7f6', minHeight: '100vh' }}>
+    <div style={{ paddingBottom: '36px', backgroundColor: '#f4f7f6', minHeight: '100vh' }}>
       {/* PALM GREEN HEADER */}
       <div style={{ 
         background: 'linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%)', 
