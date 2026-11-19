@@ -1,12 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, ScanLine, ClipboardList, Star, User } from 'lucide-react';
+import { Home, QrCode, ClipboardList, Star, User } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 
 const BottomNav = () => {
   const navItems = [
     { to: '/', icon: Home, label: 'Dashboard' },
-    { to: '/absen', icon: ScanLine, label: 'Absen' },
+    { to: '/absen', icon: QrCode, label: 'Absen' },
     { to: '/tugas', icon: ClipboardList, label: 'Tugas' },
     { to: '/evaluasi', icon: Star, label: 'Evaluasi' },
     { to: '/profil', icon: User, label: 'Profil' },

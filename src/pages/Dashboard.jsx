@@ -217,26 +217,26 @@ const Dashboard = () => {
         </div>
 
         <div style={{ position: 'relative', zIndex: 2 }}>
-          <p style={{ fontSize: '0.9rem', marginBottom: '0.2rem', color: '#e2e8f0' }}>Selamat datang,</p>
+          <p style={{ fontSize: '14px', marginBottom: '2px', color: '#e2e8f0' }}>Selamat datang,</p>
           <h1 style={{ 
-            fontSize: '1.75rem', fontWeight: '800', marginBottom: '0.75rem', 
-            lineHeight: '1.2', letterSpacing: '-0.5px',
+            fontSize: '26px', fontWeight: '800', marginBottom: '10px', 
+            lineHeight: '1.2', letterSpacing: '-0.3px', textTransform: 'uppercase',
+            color: '#ffffff',
             display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
           }}>
-            {loading ? 'Memuat...' : (data.trainee?.name || 'Nama Peserta')}
+            {loading ? 'Memuat...' : (data.trainee?.name || 'MASJAYA')}
           </h1>
           
           <div style={{ 
             display: 'inline-flex', alignItems: 'center', gap: '8px',
-            backgroundColor: 'rgba(255,255,255,0.15)', padding: '6px 14px', borderRadius: '24px',
-            backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.1)'
+            backgroundColor: 'rgba(255, 255, 255, 0.12)', padding: '6px 14px', borderRadius: '20px'
           }}>
-            <div style={{ width: '8px', height: '8px', backgroundColor: '#86d16f', borderRadius: '50%', boxShadow: '0 0 8px #86d16f' }}></div>
-            <span style={{ fontSize: '0.75rem', fontWeight: '600', letterSpacing: '0.5px' }}>
+            <div style={{ width: '8px', height: '8px', backgroundColor: '#86d16f', borderRadius: '50%', boxShadow: '0 0 6px rgba(134,209,111,0.6)' }}></div>
+            <span style={{ fontSize: '12px', fontWeight: '700', color: '#86d16f' }}>
               {loading ? '...' : (
-                typeof data.todayClass === 'string'
-                  ? data.todayClass
-                  : (data.todayClass?.subject || data.trainee?.program || 'Peserta Pelatihan')
+                data.trainee?.program || 
+                (typeof data.todayClass === 'string' ? data.todayClass : data.todayClass?.subject) ||
+                'Supervisory'
               )}
             </span>
           </div>
@@ -244,13 +244,13 @@ const Dashboard = () => {
       </div>
 
       {/* CARDS CONTAINER */}
-      <div className="dashboard-cards-grid" style={{ marginTop: '-3.5rem', padding: '0 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative', zIndex: 3 }}>
+      <div className="dashboard-cards-grid" style={{ marginTop: '-3.5rem', padding: '0 1.25rem', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', zIndex: 3 }}>
         
         {/* CERTIFICATE BANNER */}
         {showCertBanner && data.classInfo && Boolean(data.classInfo.is_passed) && (
           <div className="dashboard-full-width-card" style={{
             backgroundColor: '#ecfdf5', border: '1px solid #10b981', borderRadius: '20px', padding: '1.25rem',
-            position: 'relative', boxShadow: '0 8px 24px rgba(16, 185, 129, 0.1)'
+            position: 'relative', boxShadow: '0 4px 16px rgba(16, 185, 129, 0.1)'
           }}>
             <button onClick={() => setShowCertBanner(false)} style={{ position: 'absolute', top: '12px', right: '12px', background: 'none', border: 'none', color: '#059669', cursor: 'pointer' }}>
               <X size={18} />
@@ -265,89 +265,102 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* ABSENSI CARD */}
+        {/* CARD 1: ABSENSI HARI INI */}
         <div style={{ 
-          backgroundColor: 'white', borderRadius: '20px', padding: '1.5rem', 
+          backgroundColor: '#ffffff', borderRadius: '20px', padding: '18px 20px', 
           border: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.02)', position: 'relative', overflow: 'hidden'
+          boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
         }}>
-          {/* Decorative Mint Background */}
-          <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '40%', background: 'linear-gradient(to left, #ecfdf5, transparent)', opacity: 0.7, borderRadius: '0 20px 20px 0', pointerEvents: 'none' }} />
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative', zIndex: 1 }}>
-             <div style={{ backgroundColor: '#e8fcf1', padding: '12px', borderRadius: '50%', color: '#047857', border: '1px solid #d1fae5' }}>
-               <CheckCircle size={32} strokeWidth={2.5} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+             <div style={{ 
+               width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#e8fcf1', 
+               display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#047857', flexShrink: 0 
+             }}>
+               <CheckCircle size={26} strokeWidth={2.5} />
              </div>
              <div>
-               <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '2px', fontWeight: '500' }}>Absensi Hari Ini</p>
-               <p style={{ fontSize: '1.25rem', fontWeight: '800', color: '#0f4a38' }}>
+               <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 2px 0', fontWeight: '700' }}>Absensi Hari Ini</p>
+               <p style={{ fontSize: '18px', fontWeight: '800', color: data.todayAttendance ? '#047857' : '#0f4a38', margin: 0 }}>
                  {loading ? '...' : (data.todayAttendance ? 'Sudah Absen' : 'Belum Absen')}
                </p>
              </div>
           </div>
           {!data.todayAttendance && (
             <Link to="/absen" style={{ 
-              backgroundColor: '#f43f5e', color: 'white', textDecoration: 'none', position: 'relative', zIndex: 1,
-              padding: '0.6rem 1.25rem', borderRadius: '12px', fontWeight: '700', fontSize: '0.9rem',
-              boxShadow: '0 4px 12px rgba(244, 63, 94, 0.25)', display: 'flex', alignItems: 'center', gap: '6px'
+              backgroundColor: '#f43f5e', color: 'white', textDecoration: 'none',
+              height: '44px', padding: '0 16px', borderRadius: '12px', fontWeight: '700', fontSize: '13px',
+              boxShadow: '0 4px 12px rgba(244, 63, 94, 0.25)', display: 'inline-flex', alignItems: 'center', gap: '8px',
+              flexShrink: 0
             }}>
-              <QrCode size={18} strokeWidth={2.5} />
+              <QrCode size={18} strokeWidth={2.2} />
               Scan QR
             </Link>
           )}
         </div>
 
-        {/* TUGAS CARD */}
-        <div style={{ backgroundColor: 'white', borderRadius: '20px', padding: '1.5rem', border: '1px solid #f1f5f9', boxShadow: '0 8px 24px rgba(0,0,0,0.02)', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 0, right: 0, bottom: '50%', width: '40%', background: 'radial-gradient(ellipse at top right, #fff7ed, transparent)', opacity: 0.8, pointerEvents: 'none' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', position: 'relative', zIndex: 1 }}>
-            <div style={{ backgroundColor: '#fffbeb', padding: '12px', borderRadius: '16px', color: '#d97706' }}>
-              <ClipboardList size={32} strokeWidth={2.5} />
+        {/* CARD 2: TUGAS MENUNGGU */}
+        <div style={{ 
+          backgroundColor: '#ffffff', borderRadius: '20px', padding: '20px', 
+          border: '1px solid #f1f5f9', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+          display: 'flex', flexDirection: 'column', gap: '16px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ 
+              width: '48px', height: '48px', borderRadius: '16px', backgroundColor: '#fffbeb', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', flexShrink: 0 
+            }}>
+              <ClipboardList size={26} strokeWidth={2.2} />
             </div>
             <div>
-              <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '2px', fontWeight: '500' }}>Tugas Menunggu</p>
+              <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 2px 0', fontWeight: '700' }}>Tugas Menunggu</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#0f4a38' }}>{loading ? '...' : data.pendingTasks}</span>
-                <span style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '600' }}>tugas</span>
+                <span style={{ fontSize: '22px', fontWeight: '800', color: '#0f4a38', lineHeight: 1 }}>{loading ? '0' : data.pendingTasks}</span>
+                <span style={{ fontSize: '13px', color: '#1e293b', fontWeight: '700' }}>tugas</span>
               </div>
             </div>
           </div>
           <Link to="/tugas" style={{ 
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', 
-            textDecoration: 'none', color: '#0f4a38', padding: '1rem 1.25rem', borderRadius: '12px', position: 'relative', zIndex: 1
+            textDecoration: 'none', height: '48px', padding: '0 14px', borderRadius: '12px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <ClipboardList size={20} color="#047857" strokeWidth={2.5} />
-              <span style={{ fontWeight: '700', fontSize: '0.95rem' }}>Lihat Semua Tugas</span>
+              <ClipboardList size={20} color="#047857" strokeWidth={2.2} />
+              <span style={{ fontWeight: '700', fontSize: '14px', color: '#0f4a38' }}>Lihat Semua Tugas</span>
             </div>
-            <ChevronRight size={20} color="#94a3b8" />
+            <ChevronRight size={18} color="#94a3b8" strokeWidth={2.2} />
           </Link>
         </div>
 
-        {/* EVALUASI CARD */}
-        <div style={{ backgroundColor: 'white', borderRadius: '20px', padding: '1.5rem', border: '1px solid #f1f5f9', boxShadow: '0 8px 24px rgba(0,0,0,0.02)', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 0, right: 0, bottom: '50%', width: '40%', background: 'radial-gradient(ellipse at top right, #eff6ff, transparent)', opacity: 0.8, pointerEvents: 'none' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', position: 'relative', zIndex: 1 }}>
-            <div style={{ backgroundColor: '#eff6ff', padding: '12px', borderRadius: '16px', color: '#3b82f6' }}>
-              <Star size={32} strokeWidth={2.5} />
+        {/* CARD 3: EVALUASI MENUNGGU */}
+        <div style={{ 
+          backgroundColor: '#ffffff', borderRadius: '20px', padding: '20px', 
+          border: '1px solid #f1f5f9', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+          display: 'flex', flexDirection: 'column', gap: '16px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ 
+              width: '48px', height: '48px', borderRadius: '16px', backgroundColor: '#eff6ff', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', flexShrink: 0 
+            }}>
+              <Star size={26} strokeWidth={2.2} fill="#3b82f6" />
             </div>
             <div>
-              <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '2px', fontWeight: '500' }}>Evaluasi Menunggu</p>
+              <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 2px 0', fontWeight: '700' }}>Evaluasi Menunggu</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#0f4a38' }}>{loading ? '...' : (data.pendingEvaluations || 0)}</span>
-                <span style={{ fontSize: '0.9rem', color: '#334155', fontWeight: '600' }}>Sesi</span>
+                <span style={{ fontSize: '22px', fontWeight: '800', color: '#0f4a38', lineHeight: 1 }}>{loading ? '0' : (data.pendingEvaluations || 0)}</span>
+                <span style={{ fontSize: '13px', color: '#1e293b', fontWeight: '700' }}>Sesi</span>
               </div>
             </div>
           </div>
           <Link to="/evaluasi" style={{ 
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', 
-            textDecoration: 'none', color: '#0f4a38', padding: '1rem 1.25rem', borderRadius: '12px', position: 'relative', zIndex: 1
+            textDecoration: 'none', height: '48px', padding: '0 14px', borderRadius: '12px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Star size={20} color="#0369a1" strokeWidth={2.5} />
-              <span style={{ fontWeight: '700', fontSize: '0.95rem' }}>Mulai Evaluasi</span>
+              <Star size={20} color="#3b82f6" fill="#3b82f6" strokeWidth={2.2} />
+              <span style={{ fontWeight: '700', fontSize: '14px', color: '#0f4a38' }}>Mulai Evaluasi</span>
             </div>
-            <ChevronRight size={20} color="#94a3b8" />
+            <ChevronRight size={18} color="#94a3b8" strokeWidth={2.2} />
           </Link>
         </div>
 
