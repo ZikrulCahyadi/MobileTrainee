@@ -41,6 +41,7 @@ function App() {
           <Route path="/tugas" element={<ProtectedRoute><Tugas /></ProtectedRoute>} />
           <Route path="/profil" element={<ProtectedRoute><Profil /></ProtectedRoute>} />
           <Route path="/evaluasi" element={<ProtectedRoute><Evaluasi /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
     </BrowserRouter>

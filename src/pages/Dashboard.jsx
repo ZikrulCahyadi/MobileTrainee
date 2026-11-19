@@ -1,7 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, ClipboardList, Star, QrCode, Calendar, Clock, MapPin, Home, User, BookOpen, X, ChevronRight, BookOpenCheck, Coffee } from 'lucide-react';
+import { CheckCircle, ClipboardList, Star, QrCode, Calendar, Clock, MapPin, Home, User, BookOpen, ChevronRight, BookOpenCheck, Coffee, X } from 'lucide-react';
 import api from '../utils/api';
+
+const INDO_MONTHS = {
+  'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4,
+  'jun': 5, 'jul': 6, 'agu': 7, 'aug': 7, 'sep': 8, 'okt': 9, 'oct': 9,
+  'nov': 10, 'des': 11, 'dec': 11
+};
+
+const parseDateSafe = (rawDate) => {
+  if (!rawDate || String(rawDate).trim().toLowerCase() === 'hari ini') return null;
+  const str = String(rawDate).trim();
+
+  // Try standard parse first (ISO, YYYY-MM-DD, etc.)
+  const direct = new Date(str);
+  if (!isNaN(direct.getTime()) && str.includes('-')) {
+    return direct;
+  }
+
+  // Handle format like "19 Agu 2026", "19 Agustus 2026", etc.
+  const match = str.match(/^(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})/);
+  if (match) {
+    const day = parseInt(match[1], 10);
+    const mStr = match[2].toLowerCase().substring(0, 3);
+    const year = parseInt(match[3], 10);
+    if (INDO_MONTHS[mStr] !== undefined) {
+      return new Date(year, INDO_MONTHS[mStr], day);
+    }
+  }
+
+  return isNaN(direct.getTime()) ? null : direct;
+};
+
+const formatDisplayDate = (rawDate) => {
+  if (!rawDate || String(rawDate).trim().toLowerCase() === 'hari ini') return 'Hari Ini';
+  const d = parseDateSafe(rawDate);
+  if (!d) return rawDate;
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+const formatDisplayDateRange = (startDateRaw, endDateRaw) => {
+  if (!startDateRaw) return endDateRaw ? formatDisplayDate(endDateRaw) : 'Hari Ini';
+  const startFmt = formatDisplayDate(startDateRaw);
+  if (!endDateRaw || endDateRaw === startDateRaw) return startFmt;
+  const endFmt = formatDisplayDate(endDateRaw);
+  return `${startFmt} - ${endFmt}`;
+};
 
 const BotanicalLeaf = ({ style }) => (
   <svg viewBox="0 0 100 100" style={style}>
@@ -16,18 +61,20 @@ const BotanicalLeaf = ({ style }) => (
 const Dashboard = () => {
   const navigate = useNavigate();
   const [data, setData] = useState({
-    todayAttendance: false,
+    todayAttendance: localStorage.getItem('attended_today') === 'true',
     pendingTasks: 0,
     pendingEvaluations: 0,
     trainee: JSON.parse(localStorage.getItem('trainee_data') || '{"name":"","program":""}'),
     todayClass: null,
-    classInfo: null
+    classInfo: JSON.parse(localStorage.getItem('class_info') || 'null')
   });
   const [loading, setLoading] = useState(true);
   const [showCertBanner, setShowCertBanner] = useState(true);
 
   useEffect(() => {
-    const fetchDashboard = async () => {
+    let isMounted = true;
+
+    const fetchDashboard = async (isBackground = false) => {
       try {
         const response = await api.get('/trainee/dashboard');
         let dashboardData = response.data.data || response.data;
@@ -42,6 +89,15 @@ const Dashboard = () => {
           console.error("Gagal mendapatkan jumlah evaluasi", e);
         }
 
+        if (!isMounted) return;
+
+        if (dashboardData.todayAttendance !== undefined) {
+          localStorage.setItem('attended_today', dashboardData.todayAttendance ? 'true' : 'false');
+        }
+        if (dashboardData.classInfo) {
+          localStorage.setItem('class_info', JSON.stringify(dashboardData.classInfo));
+        }
+
         setData(dashboardData);
       } catch (error) {
         if (error.response?.status === 401) {
@@ -51,16 +107,29 @@ const Dashboard = () => {
         }
         console.error("Error fetching dashboard data", error);
       } finally {
-        setLoading(false);
+        if (!isBackground && isMounted) {
+          setLoading(false);
+        }
       }
     };
-    fetchDashboard();
+
+    // Panggilan pertama saat halaman dibuka
+    fetchDashboard(false);
+
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
   const handleDownloadCertificate = async () => {
     try {
-      const response = await api.get('/api/trainee/certificate', { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const classId = data.classInfo?.id;
+      if (!classId) {
+        alert('Informasi kelas tidak ditemukan.');
+        return;
+      }
+      const response = await api.get(`/trainee/certificate/${classId}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `Sertifikat_${data.trainee?.name || 'Kelulusan'}.pdf`);
@@ -68,7 +137,7 @@ const Dashboard = () => {
       link.click();
       setTimeout(() => { link.remove(); window.URL.revokeObjectURL(url); }, 100);
     } catch (error) {
-      alert(error.message || 'Gagal mengunduh sertifikat.');
+      alert(error.response?.data?.message || error.message || 'Gagal mengunduh sertifikat.');
     }
   };
 
@@ -87,9 +156,9 @@ const Dashboard = () => {
     }
   };
 
-  const hasActiveSchedule = Boolean(data.classInfo && data.classInfo.id);
+  const hasActiveSchedule = Boolean(data.classInfo && data.classInfo.id && !data.classInfo.is_completed);
   const lmsUrl = data.classInfo?.lms_url || "https://e-learning.first-resources.com/";
-  const messUrl = data.classInfo?.mess_url || "https://mess-fr-academy.my.id";
+  const messUrl = data.classInfo?.mess_url || "https://mess-academy.first-resources.com";
 
   return (
     <div style={{ paddingBottom: '90px', backgroundColor: '#f4f7f6', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
@@ -291,8 +360,14 @@ const Dashboard = () => {
             <BookOpenCheck size={48} color="#86d16f" strokeWidth={1.5} style={{ position: 'relative', zIndex: 1 }} />
             <div style={{ width: '1px', height: '50px', backgroundColor: 'rgba(255,255,255,0.2)', position: 'relative', zIndex: 1 }} />
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <h3 style={{ color: '#e8fcf1', fontWeight: '800', fontSize: '1.1rem', marginBottom: '4px' }}>Jadwal Training Tidak Aktif</h3>
-              <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)' }}>Saat ini belum ada jadwal kelas yang aktif.</p>
+              <h3 style={{ color: '#e8fcf1', fontWeight: '800', fontSize: '1.1rem', marginBottom: '4px' }}>
+                {data.classInfo?.is_completed ? 'Pelatihan Telah Selesai' : 'Jadwal Pelatihan Tidak Aktif'}
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', margin: 0 }}>
+                {data.classInfo?.is_completed 
+                  ? `Sesi pelatihan "${data.classInfo.title}" telah selesai dilaksanakan.` 
+                  : 'Saat ini belum ada jadwal kelas yang aktif.'}
+              </p>
             </div>
           </div>
         ) : (
@@ -305,7 +380,7 @@ const Dashboard = () => {
               <BookOpenCheck size={40} color="#86d16f" strokeWidth={1.5} />
               <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.2)' }} />
               <div>
-                <h3 style={{ color: '#e8fcf1', fontWeight: '800', fontSize: '1.1rem', marginBottom: '2px' }}>Jadwal Training Aktif</h3>
+                <h3 style={{ color: '#e8fcf1', fontWeight: '800', fontSize: '1.1rem', marginBottom: '2px' }}>Jadwal Pelatihan Aktif</h3>
                 <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)' }}>Detail jadwal kelas Anda saat ini.</p>
               </div>
             </div>
@@ -318,8 +393,7 @@ const Dashboard = () => {
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.7, marginBottom: '2px' }}>Tanggal</span>
                   <span style={{ fontSize: '0.9rem', fontWeight: '700' }}>
-                    {data.classInfo.date ? new Date(data.classInfo.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'} 
-                    {data.classInfo.end_date && data.classInfo.end_date !== data.classInfo.date ? ` - ${new Date(data.classInfo.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}` : ''}
+                    {formatDisplayDateRange(data.classInfo.date, data.classInfo.end_date)}
                   </span>
                 </div>
               </div>

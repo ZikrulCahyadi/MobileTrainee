@@ -63,8 +63,10 @@ const Absen = () => {
           // Submit otomatis
           try {
             const response = await api.post('/trainee/submit-attendance', {
-                qr_token: decodedText.trim()
+                qr_token: decodedText.trim(),
+                qr_code: decodedText.trim()
             });
+            localStorage.setItem('attended_today', 'true');
             setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
             fetchHistory();
           } catch (err) {
@@ -103,8 +105,10 @@ const Absen = () => {
     setTimeout(async () => {
       try {
           const response = await api.post('/trainee/submit-attendance', {
-              qr_token: token.trim()
+              qr_token: token.trim(),
+              qr_code: token.trim()
           });
+          localStorage.setItem('attended_today', 'true');
           setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
           setToken('');
           fetchHistory();
@@ -121,7 +125,7 @@ const Absen = () => {
   return (
     <div className="p-4">
       <div className="card mb-4">
-        <h2 className="text-xl font-bold text-primary-dark mb-1">Absensi Training</h2>
+        <h2 className="text-xl font-bold text-primary-dark mb-1">Absensi Pelatihan</h2>
         <p className="text-sm text-light">Lakukan presensi dengan memindai QR Code dari Trainer.</p>
       </div>
 
@@ -183,8 +187,10 @@ const Absen = () => {
                       setTimeout(async () => {
                         try {
                           const response = await api.post('/trainee/submit-attendance', {
-                              qr_token: text.trim()
+                              qr_token: text.trim(),
+                              qr_code: text.trim()
                           });
+                          localStorage.setItem('attended_today', 'true');
                           setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
                           fetchHistory();
                         } catch (err) {
@@ -232,8 +238,13 @@ const Absen = () => {
             />
           </div>
           
-          <button className="btn-primary" style={{ width: '100%', padding: '0.875rem', fontSize: '1rem', borderRadius: '8px' }} onClick={handleSubmitAbsen}>
-            Submit Absen
+          <button 
+            className="btn-primary" 
+            style={{ width: '100%', padding: '0.875rem', fontSize: '1rem', borderRadius: '8px', opacity: feedback?.type === 'loading' ? 0.7 : 1 }} 
+            onClick={handleSubmitAbsen}
+            disabled={feedback?.type === 'loading'}
+          >
+            {feedback?.type === 'loading' ? 'Memverifikasi...' : 'Submit Absen'}
           </button>
         </div>
       )}

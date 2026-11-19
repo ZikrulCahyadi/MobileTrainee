@@ -70,16 +70,18 @@ const Tugas = () => {
 
   const validateAndAddFiles = (files) => {
     let error = '';
-    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-    const maxPdfSize = 2 * 1024 * 1024; // 2MB
+    const maxFileSize = 10 * 1024 * 1024; // 10MB (sesuai backend & APK)
+    const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx', '.ppt', '.pptx'];
 
     const validFiles = files.filter(file => {
-      if (!validTypes.includes(file.type)) {
-        error = 'Format file tidak didukung. Harap gunakan PDF, JPG, atau PNG.';
+      const lowerName = file.name.toLowerCase();
+      const hasValidExt = allowedExtensions.some(ext => lowerName.endsWith(ext));
+      if (!hasValidExt) {
+        error = 'Format file tidak didukung. Harap gunakan PDF, JPG, PNG, Word (DOC/DOCX), atau PPT.';
         return false;
       }
-      if (file.type === 'application/pdf' && file.size > maxPdfSize) {
-        error = `Ukuran PDF terlalu besar. Maksimal 2 MB.`;
+      if (file.size > maxFileSize) {
+        error = `Ukuran file ${file.name} melebihi batas maksimal 10 MB per file.`;
         return false;
       }
       return true;
@@ -136,11 +138,7 @@ const Tugas = () => {
 
       setUploadText('Mengirim...');
 
-      await api.post(`/trainee/tasks/${taskId}/submit`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await api.post(`/trainee/tasks/${taskId}/submit`, formData);
       setFeedback({ type: 'success', text: 'Tugas berhasil dikumpulkan!' });
       setExpandedTaskId(null);
       setSelectedFiles([]);
@@ -172,7 +170,7 @@ const Tugas = () => {
   return (
     <div className="p-4 dashboard-form-container">
       <div className="mb-6 mt-2">
-        <h2 className="text-xl font-bold text-primary-dark mb-1">Tugas Training</h2>
+        <h2 className="text-xl font-bold text-primary-dark mb-1">Tugas Pelatihan</h2>
         <p className="text-sm text-light">Daftar tugas dari materi yang telah diikuti.</p>
       </div>
 
@@ -200,8 +198,8 @@ const Tugas = () => {
           </Link>
         </div>
       ) : (
-        tasks.map((task) => (
-          <div className="card" key={task.id || Math.random()} style={{ overflow: 'hidden' }}>
+        tasks.map((task, index) => (
+          <div className="card" key={task.id || `task-${index}`} style={{ overflow: 'hidden' }}>
             <div className="flex justify-between items-start mb-2">
               <h3 className="font-bold text-light text-xs uppercase">{task.session || 'Materi'}</h3>
               <span className={`status-badge ${task.status === 'Sudah' ? '' : 'red'}`} style={{ fontSize: '0.65rem' }}>
@@ -274,7 +272,7 @@ const Tugas = () => {
                   >
                     <Upload size={32} style={{ color: '#94a3b8', marginBottom: '0.75rem' }} />
                     <p className="text-sm text-primary-dark font-medium mb-1">Pilih atau letakkan beberapa file di sini</p>
-                    <p className="text-xs text-light" style={{ marginBottom: '1.25rem' }}>Format PDF/JPG/PNG maks 5MB per file</p>
+                    <p className="text-xs text-light" style={{ marginBottom: '1.25rem' }}>Format PDF/Foto/Word/PPT maks 10MB per file</p>
                     
                     <button 
                       className="btn-primary" 
@@ -292,7 +290,7 @@ const Tugas = () => {
                   ref={fileInputRef} 
                   style={{ display: 'none' }} 
                   onChange={handleFileChange}
-                  accept=".pdf,.jpg,.jpeg,.png"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.ppt,.pptx"
                 />
 
                 {fileError && (

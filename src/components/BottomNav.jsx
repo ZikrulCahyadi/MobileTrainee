@@ -15,7 +15,7 @@ const BottomNav = () => {
     <div className="bottom-nav-container">
       {/* Logo khusus Desktop di Sidebar */}
       <div className="sidebar-logo">
-        <img src="https://www.helikonia.co.uk/wp-content/uploads/2021/03/first-resource-2.png" alt="First Resources Logo" style={{ width: '120px', height: 'auto', marginBottom: '1rem', display: 'block' }} />
+        <img src="/logo.png" alt="First Resources" style={{ width: '120px', height: 'auto', marginBottom: '1rem', display: 'block', objectFit: 'contain', backgroundColor: 'white', padding: '6px', borderRadius: '8px' }} />
         <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'white' }}>FR Academy</h2>
       </div>
 

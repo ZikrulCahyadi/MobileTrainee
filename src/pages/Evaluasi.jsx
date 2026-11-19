@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPendingEvaluations, submitEvaluation } from '../utils/api';
 import { EVALUATION_QUESTIONS, EVALUATION_VALUES } from '../constants/evaluationQuestions';
-import { CheckCircle, AlertCircle, Check, FileX } from 'lucide-react';
+import { CheckCircle, AlertCircle, Check, FileX, Award, Sparkles, X, ChevronRight } from 'lucide-react';
 
 const BotanicalLeaf = ({ style }) => (
   <svg viewBox="0 0 100 100" style={style}>
@@ -25,6 +25,9 @@ export default function Evaluasi() {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [modalStep, setModalStep] = useState(1);
+  const [submittedSession, setSubmittedSession] = useState(null);
 
   useEffect(() => {
     fetchPending();
@@ -62,15 +65,28 @@ export default function Evaluasi() {
       setFeedback({ type: 'error', text: 'Mohon berikan penjelasan karena terdapat pilihan D/E.' });
       return;
     }
+    if (!kesanPesan.trim()) {
+      setFeedback({ type: 'error', text: 'Mohon tuliskan kesan dan pesan Anda terlebih dahulu.' });
+      return;
+    }
     
     setSubmitting(true);
     try {
-      await submitEvaluation(activeSession.id, {
+      const currentSession = activeSession;
+      await submitEvaluation(currentSession.id, {
         answers,
         explanation_de: explanation,
         kesan_pesan: kesanPesan
       });
-      setFeedback({ type: 'success', text: 'Terima kasih telah mengisi evaluasi ini.' });
+      
+      // Simpan sesi yang dievaluasi dan tampilkan pop-up tahap 1 (terima kasih isi evaluasi)
+      setSubmittedSession(currentSession);
+      setModalStep(1);
+      setShowSuccessModal(true);
+      try {
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      } catch (err) {}
+
       setHasSubmitted(true);
       setAnswers({}); setExplanation(''); setKesanPesan('');
       fetchPending();
@@ -83,7 +99,7 @@ export default function Evaluasi() {
 
   if (loading) return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-light)' }}>Memuat data...</div>;
   
-  if (pendingSessions.length === 0) {
+  if (pendingSessions.length === 0 && !showSuccessModal) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', marginTop: '3rem' }}>
         <div style={{ width: '64px', height: '64px', backgroundColor: hasSubmitted ? '#dcfce3' : '#f1f5f9', color: hasSubmitted ? '#16a34a' : '#64748b', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
@@ -95,13 +111,30 @@ export default function Evaluasi() {
         <p style={{ color: 'var(--text-light)', fontSize: '0.875rem' }}>
           {hasSubmitted ? 'Terima kasih atas partisipasi Anda.' : 'Saat ini tidak ada sesi pelatihan yang perlu Anda evaluasi.'}
         </p>
-        <button 
-          className="btn-primary" 
-          style={{ marginTop: '1.5rem', padding: '0.75rem 2rem' }}
-          onClick={() => navigate('/')}
-        >
-          Kembali ke Dashboard
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+          <button 
+            type="button" 
+            style={{ 
+              backgroundColor: '#e2e8f0', 
+              color: '#334155', 
+              border: 'none', 
+              borderRadius: '12px', 
+              padding: '0.75rem 1.25rem', 
+              fontWeight: '600', 
+              cursor: 'pointer' 
+            }}
+            onClick={() => { setLoading(true); fetchPending(); }}
+          >
+            Periksa Ulang
+          </button>
+          <button 
+            className="btn-primary" 
+            style={{ padding: '0.75rem 1.5rem', borderRadius: '12px' }}
+            onClick={() => navigate('/')}
+          >
+            Kembali ke Dashboard
+          </button>
+        </div>
       </div>
     );
   }
@@ -130,16 +163,16 @@ export default function Evaluasi() {
         <BotanicalLeaf style={{ position: 'absolute', bottom: '-40%', right: '15%', width: '120px', height: '120px', color: '#1a6a51', opacity: 0.3, transform: 'rotate(-45deg)', pointerEvents: 'none' }} />
 
         <h1 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '1rem', position: 'relative', zIndex: 2 }}>
-          Evaluasi Training
+          Evaluasi Pelatihan
         </h1>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', position: 'relative', zIndex: 2 }}>
           <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>
             <span style={{ fontWeight: 'normal', opacity: 0.75 }}>Materi: </span>
-            <span style={{ fontWeight: 'bold' }}>{activeSession.title}</span>
+            <span style={{ fontWeight: 'bold' }}>{activeSession?.title || activeSession?.materi || 'Pelatihan'}</span>
           </p>
           <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>
             <span style={{ fontWeight: 'normal', opacity: 0.75 }}>Trainer: </span>
-            <span style={{ fontWeight: 'bold' }}>{activeSession.trainer_name}</span>
+            <span style={{ fontWeight: 'bold' }}>{activeSession?.trainer_name || activeSession?.trainer || '-'}</span>
           </p>
         </div>
       </div>
@@ -216,7 +249,7 @@ export default function Evaluasi() {
             onChange={e => setKesanPesan(e.target.value)} 
             rows="4" 
             style={{ width: '100%', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '0.75rem', fontSize: '0.875rem', backgroundColor: '#f8fafc', outline: 'none' }} 
-            placeholder="Tuliskan kesan dan pesan Anda selama mengikuti training ini..."
+            placeholder="Tuliskan kesan dan pesan Anda selama mengikuti pelatihan ini..."
           ></textarea>
         </div>
         
@@ -280,6 +313,244 @@ export default function Evaluasi() {
           </div>
         </div>
       )}
+
+      {/* POP-UP EVALUASI / PELATIHAN (2-STEP MODAL) */}
+      {showSuccessModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(13, 56, 41, 0.75)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.25rem',
+          zIndex: 99999
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '28px',
+            padding: '2rem 1.75rem',
+            maxWidth: '380px',
+            width: '100%',
+            textAlign: 'center',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Close Button top-right */}
+            <button
+              onClick={() => {
+                setShowSuccessModal(false);
+                setModalStep(1);
+                navigate('/');
+              }}
+              style={{
+                position: 'absolute', top: '16px', right: '16px',
+                background: '#f1f5f9', border: 'none', borderRadius: '50%',
+                width: '32px', height: '32px', display: 'flex',
+                alignItems: 'center', justifyContent: 'center',
+                color: '#64748b', cursor: 'pointer'
+              }}
+            >
+              <X size={18} />
+            </button>
+
+            {modalStep === 1 ? (
+              /* TAHAP 1: TERIMA KASIH TELAH ISI EVALUASI */
+              <div>
+                {/* Icon Checkmark */}
+                <div style={{
+                  width: '76px', height: '76px',
+                  borderRadius: '24px',
+                  background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+                  border: '2px solid #86d16f',
+                  color: '#16a34a',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 1.25rem',
+                  boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)'
+                }}>
+                  <CheckCircle size={40} strokeWidth={2.2} />
+                </div>
+
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  backgroundColor: '#ecfdf5', color: '#047857',
+                  padding: '4px 12px', borderRadius: '20px',
+                  fontSize: '0.75rem', fontWeight: '800',
+                  marginBottom: '0.75rem', letterSpacing: '0.5px'
+                }}>
+                  <Sparkles size={14} color="#059669" />
+                  EVALUASI TERKIRIM
+                </div>
+
+                <h2 style={{
+                  fontSize: '1.35rem', fontWeight: '800',
+                  color: '#0d3829', marginBottom: '0.5rem',
+                  letterSpacing: '-0.3px', lineHeight: 1.3
+                }}>
+                  Terima Kasih!
+                </h2>
+
+                <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: '1.5', marginBottom: '1.25rem' }}>
+                  Evaluasi pelatihan telah berhasil dikirimkan. Penilaian Anda sangat bermanfaat bagi evaluasi instruktur dan pengembangan materi First Resources Academy.
+                </p>
+
+                {submittedSession && (
+                  <div style={{
+                    backgroundColor: '#f8fafc',
+                    border: '1.5px solid #e2e8f0',
+                    borderRadius: '16px',
+                    padding: '0.875rem 1rem',
+                    marginBottom: '1.5rem',
+                    textAlign: 'center'
+                  }}>
+                    <p style={{
+                      fontSize: '0.95rem', fontWeight: '800',
+                      color: '#0f4a38', margin: 0, lineHeight: 1.4
+                    }}>
+                      {submittedSession.title}
+                    </p>
+                    {submittedSession.trainer_name && (
+                      <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px', marginBottom: 0 }}>
+                        Trainer: {submittedSession.trainer_name}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  onClick={() => setModalStep(2)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#0d3829',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.95rem 1.5rem',
+                    borderRadius: '14px',
+                    fontSize: '0.95rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 20px rgba(13, 56, 41, 0.25)',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <span>Lanjut</span>
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            ) : (
+              /* TAHAP 2: TERIMA KASIH TELAH MENGIKUTI TRAINING / PELATIHAN SELESAI */
+              <div>
+                {/* Celebration Award Icon */}
+                <div style={{
+                  width: '76px', height: '76px',
+                  borderRadius: '24px',
+                  background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+                  border: '2px solid #86d16f',
+                  color: '#047857',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 1.25rem',
+                  boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)'
+                }}>
+                  <Award size={40} strokeWidth={2.2} />
+                </div>
+
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  backgroundColor: '#ecfdf5', color: '#047857',
+                  padding: '4px 12px', borderRadius: '20px',
+                  fontSize: '0.75rem', fontWeight: '800',
+                  marginBottom: '0.75rem', letterSpacing: '0.5px'
+                }}>
+                  <Sparkles size={14} color="#059669" />
+                  PELATIHAN SELESAI
+                </div>
+
+                <h2 style={{
+                  fontSize: '1.35rem', fontWeight: '800',
+                  color: '#0d3829', marginBottom: '0.5rem',
+                  letterSpacing: '-0.3px', lineHeight: 1.3
+                }}>
+                  Pelatihan Selesai!
+                </h2>
+
+                <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: '1.5', marginBottom: '1.25rem' }}>
+                  Selamat! Anda telah menyelesaikan seluruh rangkaian kegiatan pelatihan. Terima kasih atas dedikasi dan partisipasi aktif Anda.
+                </p>
+
+                {submittedSession && (
+                  <div style={{
+                    backgroundColor: '#f8fafc',
+                    border: '1.5px solid #e2e8f0',
+                    borderRadius: '16px',
+                    padding: '0.875rem 1rem',
+                    marginBottom: '1.5rem',
+                    textAlign: 'center'
+                  }}>
+                    <p style={{
+                      fontSize: '0.95rem', fontWeight: '800',
+                      color: '#0f4a38', margin: 0, lineHeight: 1.4
+                    }}>
+                      {submittedSession.title}
+                    </p>
+                    {submittedSession.trainer_name && (
+                      <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px', marginBottom: 0 }}>
+                        Trainer: {submittedSession.trainer_name}
+                      </p>
+                    )}
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      marginTop: '8px',
+                      backgroundColor: '#dcfce7',
+                      color: '#16a34a',
+                      padding: '4px 10px',
+                      borderRadius: '12px',
+                      fontWeight: '700',
+                      fontSize: '0.75rem'
+                    }}>
+                      <CheckCircle size={14} color="#16a34a" />
+                      Status: Pelatihan Telah Selesai
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    setModalStep(1);
+                    navigate('/');
+                  }}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#0d3829',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.95rem 1.5rem',
+                    borderRadius: '14px',
+                    fontSize: '0.95rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 20px rgba(13, 56, 41, 0.25)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Kembali ke Beranda
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

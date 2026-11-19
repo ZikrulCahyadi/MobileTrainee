@@ -10,44 +10,20 @@ const Login = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Pastikan session bersih saat berada di halaman login
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('trainee_data');
-  }, []);
-
-  const DUMMY_TRAINEE = {
-    id: 999,
-    nik: '123',
-    name: 'Test Peserta',
-    program: 'Managerial & Leadership',
-    batch: 'Batch 2026',
-    universitas: 'Universitas Indonesia',
-    jurusan: 'Manajemen Bisnis',
-    asal_daerah: 'Jakarta',
-    email: 'testpeserta@first-resources.com',
-    phone: '081234567890'
-  };
-
-  const handleLoginWithDummy = () => {
-    setLoading(true);
-    localStorage.setItem('auth_token', 'dummy-token-123');
-    localStorage.setItem('trainee_data', JSON.stringify(DUMMY_TRAINEE));
-    navigate('/', { replace: true });
-  };
+    // Jika sudah memiliki sesi login, langsung arahkan ke dashboard
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
-    // Shortcut langsung jika NIK adalah 123
-    if (nik.trim() === '123') {
-      handleLoginWithDummy();
-      return;
-    }
     
     try {
-      const response = await api.post('/trainee/login', { nik });
+      const response = await api.post('/trainee/login', { nik: nik.trim() });
       const token = response.data.token || response.data.data?.token;
       const trainee = response.data.trainee || response.data.data?.trainee || {};
       
@@ -69,17 +45,18 @@ const Login = () => {
     <div style={{ backgroundColor: 'var(--primary-dark)', flex: 1, minHeight: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
       <div className="card" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 1.5rem', textAlign: 'center', borderRadius: '16px', margin: '0 auto' }}>
         <img 
-          src="https://www.helikonia.co.uk/wp-content/uploads/2021/03/first-resource-2.png" 
-          alt="First Resources Logo" 
-          style={{ width: '220px', height: 'auto', margin: '0 auto 1.5rem', display: 'block' }} 
+          src="/logo.png" 
+          alt="First Resources" 
+          style={{ width: '160px', height: 'auto', margin: '0 auto 1.25rem', display: 'block', objectFit: 'contain' }} 
         />
 
-        <h1 className="text-xl font-bold text-primary-dark mb-6 mt-2">FR Academy</h1>
+        <h1 className="text-2xl font-bold text-primary-dark mb-1">FR Academy</h1>
+        <p className="text-sm text-light mb-6">Aplikasi Peserta Pelatihan</p>
 
         {error && <p className="text-sm text-danger mb-4 font-semibold">{error}</p>}
 
         <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
-          <label className="text-sm font-semibold text-primary-dark block" style={{ marginBottom: '16px', paddingLeft: '4px' }}>Nomor Induk Karyawan</label>
+          <label className="text-sm font-semibold text-primary-dark block" style={{ marginBottom: '8px', paddingLeft: '2px' }}>Nomor Induk Karyawan (NIK)</label>
           <div className="input-container mb-6">
             <IdCard size={20} />
             <input 
@@ -94,12 +71,12 @@ const Login = () => {
             />
           </div>
 
-          <button type="submit" className="btn-primary mb-4" style={{ padding: '1rem', fontSize: '1rem' }} disabled={loading}>
-            {loading ? 'Memproses...' : 'Masuk'}
+          <button type="submit" className="btn-primary mb-4" style={{ padding: '0.9rem', fontSize: '1rem', fontWeight: 'bold' }} disabled={loading}>
+            {loading ? 'Memproses...' : 'Login'}
           </button>
         </form>
 
-        <p className="text-xs text-light mt-4">Hanya untuk peserta training yang sudah didaftarkan oleh Admin.</p>
+        <p className="text-xs text-light mt-4" style={{ opacity: 0.85 }}>Learning &amp; Development - First Resources</p>
       </div>
     </div>
   );

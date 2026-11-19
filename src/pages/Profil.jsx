@@ -133,12 +133,21 @@ const Profil = () => {
 
           <div className="mb-4">
             <p className="text-xs font-bold text-light mb-1 uppercase" style={{ opacity: 0.8, color: '#94a3b8' }}>Materi Saat Ini</p>
-            <p className="font-medium text-primary-dark text-sm">{trainee.materi || '-'}</p>
+            <p className="font-medium text-primary-dark text-sm">
+              {trainee.materi || (() => {
+                try {
+                  const ci = JSON.parse(localStorage.getItem('class_info') || '{}');
+                  return ci.title || ci.subject || '-';
+                } catch {
+                  return '-';
+                }
+              })()}
+            </p>
           </div>
           
           <div className="mb-4">
-            <p className="text-xs font-bold text-light mb-1 uppercase" style={{ opacity: 0.8, color: '#94a3b8' }}>Talent To</p>
-            <p className="font-medium text-primary-dark text-sm">{trainee.talent_to || '-'}</p>
+            <p className="text-xs font-bold text-light mb-1 uppercase" style={{ opacity: 0.8, color: '#94a3b8' }}>Jabatan</p>
+            <p className="font-medium text-primary-dark text-sm">{trainee.talent_to || trainee.jabatan || '-'}</p>
           </div>
           
           <div className="mb-4">
@@ -157,7 +166,7 @@ const Profil = () => {
           Keluar Akun
         </button>
         
-        <p className="text-center text-xs text-light mt-6 mb-4">Sistem Portal Peserta Pelatihan v1.0.0</p>
+        <p className="text-center text-xs text-light mt-6 mb-4">Sistem Portal Peserta Pelatihan v1.0.1</p>
       </div>
 
       {showLogoutModal && (
