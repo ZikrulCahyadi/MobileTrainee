@@ -67,7 +67,7 @@ const Profil = () => {
   };
 
   return (
-    <div style={{ paddingBottom: '90px', backgroundColor: '#f4f7f6', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ paddingBottom: '16px', backgroundColor: '#f4f7f6', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
       {/* PREMIUM HEADER */}
       <div className="dashboard-header-container" style={{
         background: 'linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%)',
