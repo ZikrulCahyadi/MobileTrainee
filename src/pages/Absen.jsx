@@ -51,25 +51,9 @@ const isPast = (rawDate) => {
 
 const filterAttendanceHistory = (item) => {
   const status = String(item.status || '').trim().toLowerCase();
-  if (status === 'belum') return false;
-
-  const itemDate = item.attendance_date || item.date;
-
-  // Jika hari ini:
-  // Hanya tampilkan jika sudah absen (hadir / izin / sakit).
-  // Jangan tampilkan 'tidak hadir' untuk hari ini karena hari ini masih berjalan.
-  if (isToday(itemDate)) {
-    return ['hadir', 'izin', 'sakit'].includes(status);
-  }
-
-  // Jika tanggal kemarin atau lampau:
-  // Tampilkan semua status (termasuk tidak hadir)
-  if (isPast(itemDate)) {
-    return true;
-  }
-
-  // Jika unparseable atau lainnya, hanya tampilkan jika berstatus hadir
-  return status === 'hadir';
+  // Riwayat Absensi hanya menampilkan kehadiran yang sah (Hadir, Izin, Sakit)
+  // Status 'Tidak Hadir' atau 'Belum' tidak dimunculkan di riwayat presensi
+  return ['hadir', 'izin', 'sakit'].includes(status);
 };
 
 const formatAttendanceDate = (rawDate) => {
