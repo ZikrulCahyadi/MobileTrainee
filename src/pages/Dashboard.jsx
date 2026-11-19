@@ -198,8 +198,8 @@ const Dashboard = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 2 }}>
           <div className="dashboard-mobile-logo" style={{
             backgroundColor: 'white',
-            padding: '4px',
-            borderRadius: '2px', 
+            padding: '6px',
+            borderRadius: '8px', 
             boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
             display: 'inline-flex',
             alignItems: 'center',
@@ -208,7 +208,7 @@ const Dashboard = () => {
             <img 
               src={logoImg} 
               alt="First Resources Logo" 
-              style={{ width: '60px', height: 'auto', objectFit: 'contain', display: 'block' }} 
+              style={{ width: '82px', height: 'auto', objectFit: 'contain', display: 'block' }} 
             />
           </div>
           <Link to="/profil" style={{ textDecoration: 'none', marginLeft: 'auto' }}>
@@ -241,9 +241,14 @@ const Dashboard = () => {
           }}>
             <div style={{ width: '8px', height: '8px', backgroundColor: '#86d16f', borderRadius: '50%', boxShadow: '0 0 6px rgba(134,209,111,0.6)' }}></div>
             <span style={{ fontSize: '12px', fontWeight: '700', color: '#86d16f' }}>
-              {data.trainee?.program || 
-                (typeof data.todayClass === 'string' ? data.todayClass : data.todayClass?.subject) ||
-                'Supervisory'}
+              {data.classInfo?.title ||
+                data.classInfo?.subject ||
+                (typeof data.todayClass === 'string' ? data.todayClass : data.todayClass?.title || data.todayClass?.subject) ||
+                cachedClass?.title ||
+                cachedClass?.subject ||
+                data.trainee?.materi ||
+                data.trainee?.program ||
+                'Materi Pelatihan'}
             </span>
           </div>
         </div>
