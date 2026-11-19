@@ -3,7 +3,7 @@ import axios from 'axios';
 // Konfigurasi dasar untuk koneksi ke backend Laravel API
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || 'https://academy.first-resources.com/api', 
-    timeout: 10000,
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
