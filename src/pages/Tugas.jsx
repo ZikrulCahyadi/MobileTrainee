@@ -2,7 +2,70 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Clock, Upload, X, Trash2, FileText, CheckCircle, AlertCircle, FileX, ClipboardList, Camera, Image as ImageIcon } from 'lucide-react';
 import api from '../utils/api';
 import { useNavigate, Link } from 'react-router-dom';
-import imageCompression from 'browser-image-compression';
+const compressImageFast = (file) => {
+  if (!file || !file.type || !file.type.startsWith('image/') || file.type === 'image/svg+xml' || file.type === 'image/gif') {
+    return Promise.resolve(file);
+  }
+
+  // Jika ukuran file gambar sudah kecil (<= 400KB), langsung gunakan tanpa proses ulang
+  if (file.size <= 400 * 1024) {
+    return Promise.resolve(file);
+  }
+
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const maxDim = 1600; // Resolusi 1600px sangat tajam dan jelas untuk dokumen/foto tugas
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob && blob.size < file.size) {
+                const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                const compressedFile = new File([blob], cleanName, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            'image/jpeg',
+            0.78 // Kompresi kilat berbasis hardware canvas (file ~250KB-400KB, upload super cepat)
+          );
+        } catch (err) {
+          console.warn("Canvas compression failed, using original file", err);
+          resolve(file);
+        }
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+};
 
 const Tugas = () => {
   const navigate = useNavigate();
@@ -79,7 +142,7 @@ const Tugas = () => {
     validateAndAddFiles(files);
   };
 
-  const validateAndAddFiles = (files) => {
+  const validateAndAddFiles = async (files) => {
     let error = '';
     const maxFileSize = 10 * 1024 * 1024; // 10MB (sesuai backend & APK)
     const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx', '.ppt', '.pptx'];
@@ -105,7 +168,21 @@ const Tugas = () => {
     }
 
     if (validFiles.length > 0) {
+      // Tampilkan file langsung di UI agar pengguna tidak menunggu
       setSelectedFiles(prev => [...prev, ...validFiles]);
+
+      // Kompresi kilat gambar di latar belakang secara paralel sehingga saat tombol 'Kirim Tugas' ditekan, file sudah siap dikirim instan
+      try {
+        const optimizedFiles = await Promise.all(validFiles.map(compressImageFast));
+        setSelectedFiles(prev => {
+          return prev.map(f => {
+            const match = optimizedFiles.find(opt => opt.name === f.name || opt.name.replace('.jpg', '') === f.name.replace(/\.[^/.]+$/, ''));
+            return match || f;
+          });
+        });
+      } catch (e) {
+        console.warn("Background image optimization error", e);
+      }
     }
   };
 
@@ -122,32 +199,15 @@ const Tugas = () => {
     try {
       setIsUploading(true);
       setFileError('');
+      setUploadText('Mengirim tugas...');
+
+      // Proses semua file secara paralel (instan jika sudah terkompresi di background)
+      const readyFiles = await Promise.all(selectedFiles.map(compressImageFast));
 
       const formData = new FormData();
-      
-      const hasImage = selectedFiles.some(file => file.type.startsWith('image/'));
-      setUploadText(hasImage ? 'Mengompres gambar...' : 'Menyiapkan file...');
-
-      for (const file of selectedFiles) {
-        if (file.type.startsWith('image/')) {
-          const options = {
-            maxSizeMB: 1,
-            maxWidthOrHeight: 1920,
-            useWebWorker: true
-          };
-          try {
-            const compressedFile = await imageCompression(file, options);
-            formData.append('task_files[]', compressedFile);
-          } catch (error) {
-            console.error("Error compressing image", error);
-            formData.append('task_files[]', file);
-          }
-        } else {
-          formData.append('task_files[]', file);
-        }
-      }
-
-      setUploadText('Mengirim...');
+      readyFiles.forEach(file => {
+        formData.append('task_files[]', file);
+      });
 
       await api.post(`/trainee/tasks/${taskId}/submit`, formData);
       setFeedback({ type: 'success', text: 'Tugas berhasil dikumpulkan!' });
