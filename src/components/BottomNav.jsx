@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, ScanLine, ClipboardList, Star, User } from 'lucide-react';
+import logoImg from '../assets/logo.png';
 
 const BottomNav = () => {
   const navItems = [
@@ -15,7 +16,7 @@ const BottomNav = () => {
     <div className="bottom-nav-container">
       {/* Logo khusus Desktop di Sidebar */}
       <div className="sidebar-logo">
-        <img src="/logo.png" alt="First Resources" style={{ width: '120px', height: 'auto', marginBottom: '1rem', display: 'block', objectFit: 'contain', backgroundColor: 'white', padding: '6px', borderRadius: '8px' }} />
+        <img src={logoImg} alt="First Resources" style={{ width: '100px', height: 'auto', marginBottom: '1rem', display: 'block', objectFit: 'contain', backgroundColor: 'white', padding: '6px', borderRadius: '8px' }} />
         <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'white' }}>FR Academy</h2>
       </div>
 

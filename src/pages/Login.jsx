@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IdCard } from 'lucide-react';
 import api from '../utils/api';
+import logoImg from '../assets/logo.png';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -45,9 +46,9 @@ const Login = () => {
     <div style={{ backgroundColor: 'var(--primary-dark)', flex: 1, minHeight: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
       <div className="card" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 1.5rem', textAlign: 'center', borderRadius: '16px', margin: '0 auto' }}>
         <img 
-          src="/logo.png" 
+          src={logoImg} 
           alt="First Resources" 
-          style={{ width: '160px', height: 'auto', margin: '0 auto 1.25rem', display: 'block', objectFit: 'contain' }} 
+          style={{ width: '120px', height: 'auto', margin: '0 auto 1.25rem', display: 'block', objectFit: 'contain' }} 
         />
 
         <h1 className="text-2xl font-bold text-primary-dark mb-1">FR Academy</h1>

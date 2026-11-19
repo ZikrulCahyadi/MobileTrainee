@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle, ClipboardList, Star, QrCode, Calendar, Clock, MapPin, Home, User, BookOpen, ChevronRight, BookOpenCheck, Coffee, X } from 'lucide-react';
 import api from '../utils/api';
+import logoImg from '../assets/logo.png';
 
 const INDO_MONTHS = {
   'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4,
@@ -197,9 +198,9 @@ const Dashboard = () => {
             justifyContent: 'center'
           }}>
             <img 
-              src="/logo.png" 
+              src={logoImg} 
               alt="First Resources Logo" 
-              style={{ width: '44px', height: 'auto', objectFit: 'contain', display: 'block' }} 
+              style={{ width: '38px', height: 'auto', objectFit: 'contain', display: 'block' }} 
             />
           </div>
           <Link to="/profil" style={{ textDecoration: 'none', marginLeft: 'auto' }}>
