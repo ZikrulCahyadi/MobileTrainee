@@ -67,7 +67,7 @@ const Profil = () => {
   };
 
   return (
-    <div style={{ paddingBottom: '36px', backgroundColor: '#f4f7f6', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ paddingBottom: '16px', backgroundColor: '#f4f7f6', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
       {/* PREMIUM HEADER */}
       <div className="dashboard-header-container" style={{
         background: 'linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%)',
@@ -166,7 +166,7 @@ const Profil = () => {
           Keluar Akun
         </button>
         
-        <p className="text-center text-xs text-light mt-6 mb-4">Sistem Portal Peserta Pelatihan v1.0.1</p>
+        <p className="text-center text-xs text-light mt-3 mb-0">Sistem Portal Peserta Pelatihan v1.0.1</p>
       </div>
 
       {showLogoutModal && (
