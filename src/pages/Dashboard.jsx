@@ -198,9 +198,9 @@ const Dashboard = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 2 }}>
           <div className="dashboard-mobile-logo" style={{
             backgroundColor: 'white',
-            padding: '6px',
-            borderRadius: '8px', 
-            boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+            padding: '3px',
+            borderRadius: '0px', 
+            boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center'
@@ -208,7 +208,7 @@ const Dashboard = () => {
             <img 
               src={logoImg} 
               alt="First Resources Logo" 
-              style={{ width: '82px', height: 'auto', objectFit: 'contain', display: 'block' }} 
+              style={{ width: '45px', height: 'auto', objectFit: 'contain', display: 'block', borderRadius: '0px' }} 
             />
           </div>
           <Link to="/profil" style={{ textDecoration: 'none', marginLeft: 'auto' }}>
