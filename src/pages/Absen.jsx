@@ -123,112 +123,303 @@ const Absen = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="card mb-4">
-        <h2 className="text-xl font-bold text-primary-dark mb-1">Absensi Pelatihan</h2>
-        <p className="text-sm text-light">Lakukan presensi dengan memindai QR Code dari Trainer.</p>
+    <div style={{ backgroundColor: '#f4f7f6', minHeight: '100vh', paddingBottom: '90px' }}>
+      {/* PALM GREEN HEADER */}
+      <div style={{
+        background: 'linear-gradient(135deg, #0d3829 0%, #175e47 50%, #0d3829 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+        color: 'white',
+        padding: '2.5rem 1.25rem 3.5rem',
+        borderBottomLeftRadius: '28px',
+        borderBottomRightRadius: '28px',
+        boxShadow: '0 8px 24px rgba(13, 56, 41, 0.15)'
+      }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#ffffff' }}>
+          Absensi Pelatihan
+        </h1>
+        <p style={{ fontSize: '13px', color: '#D1FAE5', margin: 0 }}>
+          Presensi kehadiran kelas hari ini
+        </p>
       </div>
 
-      <div className="tab-container">
-        <button 
-          className={`tab-button ${activeTab === 'scan' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('scan');
-            setIsScanning(false);
-          }}
-        >
-          Scan Kamera
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'manual' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('manual');
-            setIsScanning(false);
-          }}
-        >
-          Input Manual
-        </button>
-      </div>
+      {/* OVERLAPPING CONTENT CONTAINER */}
+      <div style={{ marginTop: '-1.75rem', padding: '0 16px', position: 'relative', zIndex: 2 }}>
+        {/* SEGMENTED TAB SWITCHER */}
+        <div style={{
+          height: '48px',
+          backgroundColor: '#EEF2F6',
+          borderRadius: '14px',
+          padding: '4px',
+          display: 'flex',
+          marginBottom: '16px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+        }}>
+          <button 
+            type="button"
+            style={{
+              flex: 1,
+              height: '100%',
+              border: 'none',
+              borderRadius: '10px',
+              backgroundColor: activeTab === 'scan' ? '#0D3829' : 'transparent',
+              color: activeTab === 'scan' ? '#FFFFFF' : '#64748B',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onClick={() => {
+              setActiveTab('scan');
+              setIsScanning(false);
+            }}
+          >
+            Scan Kamera
+          </button>
+          <button 
+            type="button"
+            style={{
+              flex: 1,
+              height: '100%',
+              border: 'none',
+              borderRadius: '10px',
+              backgroundColor: activeTab === 'manual' ? '#0D3829' : 'transparent',
+              color: activeTab === 'manual' ? '#FFFFFF' : '#64748B',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onClick={() => {
+              setActiveTab('manual');
+              setIsScanning(false);
+            }}
+          >
+            Input Manual
+          </button>
+        </div>
 
-      {activeTab === 'scan' && (
-        <div className="card mb-6" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2rem 1rem' }}>
-          
-          {isScanning ? (
-            <div id="qr-reader" style={{ width: '100%', maxWidth: '400px', marginBottom: '1.5rem', overflow: 'hidden', borderRadius: '12px' }}></div>
-          ) : (
-            <div style={{ width: '100%', height: '240px', border: '2px dashed #cbd5e1', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', backgroundColor: '#f8fafc' }}>
-              <div style={{ backgroundColor: '#ecfccb', padding: '1rem', borderRadius: '50%', color: 'var(--primary-dark)', marginBottom: '1rem' }}>
-                <Camera size={32} />
-              </div>
-              <button className="btn-primary" style={{ width: 'auto', padding: '0.75rem 2rem' }} onClick={() => setIsScanning(true)}>
-                Aktifkan Kamera
+        {/* SCANNER / MANUAL CARD */}
+        <div style={{
+          backgroundColor: '#FFFFFF',
+          borderRadius: '20px',
+          border: '1px solid #F1F5F9',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+          padding: '20px',
+          marginBottom: '24px'
+        }}>
+          {activeTab === 'scan' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              {isScanning ? (
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <div id="qr-reader" style={{ width: '100%', maxWidth: '380px', overflow: 'hidden', borderRadius: '12px' }}></div>
+                  <button 
+                    type="button"
+                    style={{
+                      marginTop: '16px',
+                      height: '44px',
+                      padding: '0 20px',
+                      backgroundColor: 'transparent',
+                      border: '1px solid #F43F5E',
+                      color: '#F43F5E',
+                      borderRadius: '12px',
+                      fontWeight: 'bold',
+                      fontSize: '13px',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setIsScanning(false)}
+                  >
+                    Batal Scan
+                  </button>
+                </div>
+              ) : (
+                <div style={{
+                  width: '100%',
+                  height: '220px',
+                  backgroundColor: '#F8FAFC',
+                  border: '2px dashed #CBD5E1',
+                  borderRadius: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '16px',
+                  boxSizing: 'border-box'
+                }}>
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    backgroundColor: '#E8FCF1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '16px'
+                  }}>
+                    <Camera size={32} color="#0D3829" strokeWidth={2.2} />
+                  </div>
+                  <button 
+                    type="button"
+                    style={{
+                      backgroundColor: '#0D3829',
+                      color: '#FFFFFF',
+                      height: '48px',
+                      padding: '0 24px',
+                      borderRadius: '12px',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 12px rgba(13, 56, 41, 0.2)'
+                    }}
+                    onClick={() => setIsScanning(true)}
+                  >
+                    Aktifkan Kamera
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'manual' && (
+            <div style={{ paddingTop: '8px', paddingBottom: '8px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: '#0F4A38', margin: '0 0 2px 0' }}>
+                Masukkan Token QR Absensi
+              </h4>
+              <p style={{ fontSize: '12px', color: '#64748B', margin: '0 0 14px 0' }}>
+                Ketik kode token presensi dari Trainer
+              </p>
+              
+              <input 
+                type="text" 
+                placeholder="Contoh: TRN-2026-XYZ" 
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                style={{
+                  width: '100%',
+                  height: '50px',
+                  backgroundColor: '#F8FAFC',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: '12px',
+                  padding: '0 16px',
+                  color: '#1E293B',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }} 
+              />
+              
+              <button 
+                type="button"
+                style={{
+                  width: '100%',
+                  height: '50px',
+                  marginTop: '14px',
+                  backgroundColor: '#0D3829',
+                  color: '#FFFFFF',
+                  borderRadius: '12px',
+                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(13, 56, 41, 0.2)',
+                  opacity: feedback?.type === 'loading' ? 0.7 : 1
+                }} 
+                onClick={handleSubmitAbsen}
+                disabled={feedback?.type === 'loading'}
+              >
+                {feedback?.type === 'loading' ? 'Memverifikasi...' : 'Kirim Absensi'}
               </button>
             </div>
           )}
+        </div>
 
-          {isScanning && (
-            <button className="btn-outline-danger" onClick={() => setIsScanning(false)}>
-               Batal Scan
-            </button>
+        {/* SECTION: RIWAYAT ABSENSI */}
+        <div>
+          <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#0F4A38', marginBottom: '12px' }}>
+            Riwayat Absensi
+          </h3>
+          
+          {loadingHistory ? (
+            <p style={{ textAlign: 'center', color: '#64748B', fontSize: '14px', padding: '1rem 0' }}>Memuat riwayat...</p>
+          ) : attendances.filter(a => a.status !== 'Belum').length === 0 ? (
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px',
+              border: '1px solid #F1F5F9',
+              padding: '2rem 1rem',
+              textAlign: 'center',
+              color: '#64748B',
+              fontSize: '14px'
+            }}>
+              Belum ada riwayat presensi.
+            </div>
+          ) : (
+            attendances.filter(a => a.status !== 'Belum').map((item, idx) => (
+              <div key={item.id || idx} style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '16px',
+                border: '1px solid #F1F5F9',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                padding: '16px',
+                marginBottom: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: '#E8FCF1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#047857',
+                    flexShrink: 0
+                  }}>
+                    {item.status === 'Tidak Hadir' ? <XCircle size={22} color="#EF4444" /> : <CheckCircle size={22} color="#047857" strokeWidth={2.2} />}
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <p style={{
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      color: '#0F4A38',
+                      margin: '0 0 2px 0',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {item.session || item.classInfo?.title || item.title || 'Sesi Pelatihan'}
+                    </p>
+                    <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>
+                      {item.date_formatted || item.date || item.attended_at || 'Hari ini'}
+                    </p>
+                  </div>
+                </div>
+                <div style={{
+                  backgroundColor: item.status === 'Tidak Hadir' ? '#FEE2E2' : '#E8FCF1',
+                  color: item.status === 'Tidak Hadir' ? '#EF4444' : '#047857',
+                  padding: '5px 12px',
+                  borderRadius: '20px',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  flexShrink: 0,
+                  marginLeft: '8px'
+                }}>
+                  {item.status || 'Hadir'}
+                </div>
+              </div>
+            ))
           )}
         </div>
-      )}
-
-      {activeTab === 'manual' && (
-        <div className="mb-6">
-          <div className="card mb-4" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2.5rem 1rem' }}>
-            <div style={{ backgroundColor: '#ecfccb', padding: '1rem', borderRadius: '50%', color: 'var(--primary-dark)', marginBottom: '1rem' }}>
-              <QrCode size={32} />
-            </div>
-            <p className="text-sm text-center">Masukkan Token QR Code secara manual.</p>
-          </div>
-          
-          <div className="mb-4">
-            <input 
-              type="text" 
-              placeholder="Token QR Code" 
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              style={{ width: '100%', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '8px', textAlign: 'center', backgroundColor: '#f8fafc', outline: 'none', color: 'var(--text-dark)', fontWeight: '600' }} 
-            />
-          </div>
-          
-          <button 
-            className="btn-primary" 
-            style={{ width: '100%', padding: '0.875rem', fontSize: '1rem', borderRadius: '8px', opacity: feedback?.type === 'loading' ? 0.7 : 1 }} 
-            onClick={handleSubmitAbsen}
-            disabled={feedback?.type === 'loading'}
-          >
-            {feedback?.type === 'loading' ? 'Memverifikasi...' : 'Submit Absen'}
-          </button>
-        </div>
-      )}
-
-      <div style={{ paddingBottom: '2rem' }}>
-        <h3 className="font-bold text-primary-dark mb-4 text-lg">Riwayat Absensi</h3>
-        
-        {loadingHistory ? (
-           <p className="text-center text-light">Memuat riwayat...</p>
-        ) : attendances.filter(a => a.status !== 'Belum').length === 0 ? (
-           <div className="card text-center text-light py-6">Belum ada riwayat absensi.</div>
-        ) : (
-           attendances.filter(a => a.status !== 'Belum').map((item, idx) => (
-             <div key={item.id || idx} className="card flex items-center justify-between mb-3" style={{ padding: '1rem' }}>
-               <div className="flex items-center gap-3">
-                 <div style={{ backgroundColor: item.status === 'Hadir' || item.status === 'Present' || !item.status ? '#dcfce3' : 'var(--danger-bg)', padding: '0.5rem', borderRadius: '50%', color: item.status === 'Hadir' || item.status === 'Present' || !item.status ? '#10b981' : 'var(--danger)' }}>
-                   {item.status === 'Hadir' || item.status === 'Present' || !item.status ? <CheckCircle size={20} /> : <XCircle size={20} />}
-                 </div>
-                 <div>
-                   <p className="font-bold text-primary-dark text-sm">{item.session || item.classInfo?.title || item.title || 'Sesi Pelatihan'}</p>
-                   <p className="text-xs text-light">{item.date_formatted || item.date || 'Tanggal tidak diketahui'}</p>
-                 </div>
-               </div>
-               <div className={`status-badge ${item.status === 'Hadir' || item.status === 'Present' || !item.status ? 'green' : 'red'}`} style={{ backgroundColor: item.status === 'Hadir' || item.status === 'Present' || !item.status ? '#dcfce3' : '#fee2e2', color: item.status === 'Hadir' || item.status === 'Present' || !item.status ? '#047857' : '#b91c1c' }}>
-                 {item.status || 'Hadir'}
-               </div>
-             </div>
-           ))
-        )}
       </div>
 
       {/* Feedback Modal Popup */}
