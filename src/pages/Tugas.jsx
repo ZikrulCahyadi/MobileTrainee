@@ -23,7 +23,6 @@ const Tugas = () => {
   const [isCanceling, setIsCanceling] = useState(false);
   
   const fileInputRef = useRef(null);
-  const cameraInputRef = useRef(null);
 
   useEffect(() => {
     fetchTasks();
@@ -67,9 +66,6 @@ const Tugas = () => {
     validateAndAddFiles(files);
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
-    }
-    if (cameraInputRef.current) {
-      cameraInputRef.current.value = null;
     }
   };
 
@@ -368,76 +364,41 @@ const Tugas = () => {
                       Bisa upload lebih dari 1 file/foto (maks 10MB per file)
                     </p>
                     
-                    {/* DUAL ACTION BUTTONS: AMBIL FOTO & BROWSE FILE */}
-                    <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '340px' }}>
-                      <button 
-                        type="button"
-                        style={{
-                          flex: 1,
-                          height: '44px',
-                          backgroundColor: '#0d3829',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '10px',
-                          fontWeight: 'bold',
-                          fontSize: '13px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                          cursor: 'pointer',
-                          boxShadow: '0 2px 6px rgba(13, 56, 41, 0.2)'
-                        }}
-                        onClick={() => cameraInputRef.current?.click()}
-                      >
-                        <Camera size={17} strokeWidth={2.2} />
-                        <span>Ambil Foto</span>
-                      </button>
-
-                      <button 
-                        type="button"
-                        style={{
-                          flex: 1,
-                          height: '44px',
-                          backgroundColor: '#f1f5f9',
-                          color: '#0f4a38',
-                          border: '1px solid #cbd5e1',
-                          borderRadius: '10px',
-                          fontWeight: 'bold',
-                          fontSize: '13px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <Upload size={17} strokeWidth={2.2} />
-                        <span>Browse File</span>
-                      </button>
-                    </div>
+                    {/* TOMBOL UTAMA: PILIH FILE / FOTO TUGAS */}
+                    <button 
+                      type="button"
+                      style={{
+                        height: '46px',
+                        padding: '0 24px',
+                        backgroundColor: '#0d3829',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '12px',
+                        fontWeight: 'bold',
+                        fontSize: '13.5px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(13, 56, 41, 0.2)'
+                      }}
+                      onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                    >
+                      <Upload size={18} strokeWidth={2.2} />
+                      <span>Pilih File / Foto Tugas</span>
+                    </button>
                   </div>
                 )}
 
-                {/* HIDDEN INPUT FOR FILE BROWSER (Mendukung File Manager / Dokumen / PDF / Word / dsb di HP) */}
+                {/* HIDDEN INPUT FOR FILE & CAMERA BROWSER */}
                 <input 
                   type="file" 
                   multiple 
                   ref={fileInputRef} 
                   style={{ display: 'none' }} 
                   onChange={handleFileChange}
-                  accept="*/*"
-                />
-
-                {/* HIDDEN INPUT FOR DIRECT CAMERA PHOTO CAPTURE */}
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  capture="environment" 
-                  ref={cameraInputRef} 
-                  style={{ display: 'none' }} 
-                  onChange={handleFileChange}
+                  accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
                 />
 
                 {fileError && (
@@ -521,43 +482,20 @@ const Tugas = () => {
                       ))}
                     </div>
                     
-                    {/* MORE ACTION BUTTONS: + FOTO LAGI & + TAMBAH FILE */}
-                    <div style={{ display: 'flex', gap: '8px', width: '100%', marginBottom: '16px' }}>
+                    {/* TOMBOL TAMBAH FILE / FOTO LAGI */}
+                    <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '16px' }}>
                       <button 
                         type="button"
                         style={{
-                          flex: 1,
-                          height: '40px',
-                          backgroundColor: '#0d3829',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '10px',
-                          fontWeight: 'bold',
-                          fontSize: '12.5px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => cameraInputRef.current?.click()}
-                      >
-                        <Camera size={15} strokeWidth={2.2} />
-                        <span>+ Foto Lagi</span>
-                      </button>
-
-                      <button 
-                        type="button"
-                        style={{
-                          flex: 1,
-                          height: '40px',
+                          height: '42px',
+                          padding: '0 20px',
                           backgroundColor: '#f1f5f9',
                           color: '#0f4a38',
                           border: '1px solid #cbd5e1',
                           borderRadius: '10px',
                           fontWeight: 'bold',
-                          fontSize: '12.5px',
-                          display: 'flex',
+                          fontSize: '13px',
+                          display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: '6px',
@@ -566,7 +504,7 @@ const Tugas = () => {
                         onClick={() => fileInputRef.current?.click()}
                       >
                         <Upload size={15} strokeWidth={2.2} />
-                        <span>+ Tambah File</span>
+                        <span>+ Tambah File / Foto Lain</span>
                       </button>
                     </div>
                   </div>
