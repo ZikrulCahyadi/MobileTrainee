@@ -420,14 +420,14 @@ const Tugas = () => {
                   </div>
                 )}
 
-                {/* HIDDEN INPUT FOR FILE BROWSER */}
+                {/* HIDDEN INPUT FOR FILE BROWSER (Mendukung File Manager / Dokumen / PDF / Word / dsb di HP) */}
                 <input 
                   type="file" 
                   multiple 
                   ref={fileInputRef} 
                   style={{ display: 'none' }} 
                   onChange={handleFileChange}
-                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.ppt,.pptx"
+                  accept="*/*"
                 />
 
                 {/* HIDDEN INPUT FOR DIRECT CAMERA PHOTO CAPTURE */}
