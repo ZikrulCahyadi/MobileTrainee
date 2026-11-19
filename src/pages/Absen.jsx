@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Upload, XCircle, QrCode, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react';
-import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
+import { Camera, XCircle, QrCode, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react';
+import { Html5Qrcode } from 'html5-qrcode';
 import api from '../utils/api';
 
 const Absen = () => {
@@ -165,51 +165,6 @@ const Absen = () => {
               </button>
             </div>
           )}
-
-          {!isScanning && (
-            <label style={{ background: 'transparent', border: 'none', color: 'var(--primary-dark)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
-              <Upload size={18} />
-              <span style={{ textDecoration: 'underline' }}>Scan dari file gambar</span>
-              <input 
-                type="file" 
-                accept="image/*" 
-                style={{ display: 'none' }}
-                onChange={async (e) => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    const file = e.target.files[0];
-                    try {
-                      const html5QrCode = new Html5Qrcode("file-qr-reader");
-                      const decodedText = await html5QrCode.scanFileV2(file);
-                      const text = decodedText.decodedText || decodedText;
-                      
-                      // Submit otomatis
-                      setFeedback({ type: 'loading', text: 'Memverifikasi data absensi dari gambar...' });
-                      setTimeout(async () => {
-                        try {
-                          const response = await api.post('/trainee/submit-attendance', {
-                              qr_token: text.trim(),
-                              qr_code: text.trim()
-                          });
-                          localStorage.setItem('attended_today', 'true');
-                          setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
-                          fetchHistory();
-                        } catch (err) {
-                          let debugMsg = 'Tidak ada respon dari server.';
-                          if (err.response && err.response.data) {
-                              debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
-                          }
-                          setFeedback({ type: 'error', text: debugMsg });
-                        }
-                      }, 2000);
-                    } catch (err) {
-                      setFeedback({ type: 'error', text: 'QR Code tidak ditemukan atau gambar kurang jelas.' });
-                    }
-                  }
-                }}
-              />
-            </label>
-          )}
-          <div id="file-qr-reader" style={{ display: 'none' }}></div>
 
           {isScanning && (
             <button className="btn-outline-danger" onClick={() => setIsScanning(false)}>
