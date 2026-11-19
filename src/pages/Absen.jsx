@@ -3,6 +3,75 @@ import { Camera, XCircle, QrCode, CheckCircle, AlertCircle, Clock, Loader2 } fro
 import { Html5Qrcode } from 'html5-qrcode';
 import api from '../utils/api';
 
+const INDO_MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+const formatAttendanceDate = (rawDate) => {
+  if (!rawDate) return '-';
+  try {
+    const str = String(rawDate).trim();
+    const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      const year = match[1];
+      const monthIdx = parseInt(match[2], 10) - 1;
+      const day = parseInt(match[3], 10);
+      const mStr = INDO_MONTHS_SHORT[monthIdx] || match[2];
+      return `${day} ${mStr} ${year}`;
+    }
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) {
+      const day = d.getDate();
+      const mStr = INDO_MONTHS_SHORT[d.getMonth()];
+      const year = d.getFullYear();
+      return `${day} ${mStr} ${year}`;
+    }
+    return str;
+  } catch (e) {
+    return String(rawDate);
+  }
+};
+
+const getAttendanceStatusConfig = (rawStatus) => {
+  const status = String(rawStatus || '').trim().toLowerCase();
+  if (status === 'hadir') {
+    return {
+      text: 'Hadir',
+      textColor: '#047857',
+      badgeBg: '#DCFCE7',
+      iconBg: '#DCFCE7',
+      iconColor: '#16A34A',
+      IconComponent: CheckCircle
+    };
+  }
+  if (['tidak_hadir', 'tidak hadir', 'alpha', 'absen'].includes(status)) {
+    return {
+      text: 'Tidak Hadir',
+      textColor: '#DC2626',
+      badgeBg: '#FEE2E2',
+      iconBg: '#FEE2E2',
+      iconColor: '#EF4444',
+      IconComponent: AlertCircle
+    };
+  }
+  if (['izin', 'sakit'].includes(status)) {
+    return {
+      text: status === 'izin' ? 'Izin' : 'Sakit',
+      textColor: '#D97706',
+      badgeBg: '#FEF3C7',
+      iconBg: '#FEF3C7',
+      iconColor: '#D97706',
+      IconComponent: Clock
+    };
+  }
+  return {
+    text: 'Belum Hadir',
+    textColor: '#D97706',
+    badgeBg: '#FEF3C7',
+    iconBg: '#FEF3C7',
+    iconColor: '#D97706',
+    IconComponent: Clock
+  };
+};
+
 const Absen = () => {
   const [activeTab, setActiveTab] = useState('scan');
   const [isScanning, setIsScanning] = useState(false);
@@ -349,63 +418,67 @@ const Absen = () => {
               Belum ada riwayat presensi.
             </div>
           ) : (
-            attendances.filter(a => a.status !== 'Belum').map((item, idx) => (
-              <div key={item.id || idx} style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: '16px',
-                border: '1px solid #F1F5F9',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-                padding: '16px',
-                marginBottom: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    backgroundColor: '#E8FCF1',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#047857',
-                    flexShrink: 0
-                  }}>
-                    {item.status === 'Tidak Hadir' ? <XCircle size={22} color="#EF4444" /> : <CheckCircle size={22} color="#047857" strokeWidth={2.2} />}
-                  </div>
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <p style={{
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                      color: '#0F4A38',
-                      margin: '0 0 2px 0',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {item.session || item.classInfo?.title || item.title || 'Sesi Pelatihan'}
-                    </p>
-                    <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>
-                      {item.date_formatted || item.date || item.attended_at || 'Hari ini'}
-                    </p>
-                  </div>
-                </div>
-                <div style={{
-                  backgroundColor: item.status === 'Tidak Hadir' ? '#FEE2E2' : '#E8FCF1',
-                  color: item.status === 'Tidak Hadir' ? '#EF4444' : '#047857',
-                  padding: '5px 12px',
-                  borderRadius: '20px',
-                  fontSize: '11px',
-                  fontWeight: 'bold',
-                  flexShrink: 0,
-                  marginLeft: '8px'
+            attendances.filter(a => a.status !== 'Belum').map((item, idx) => {
+              const cfg = getAttendanceStatusConfig(item.status);
+              const Icon = cfg.IconComponent;
+              return (
+                <div key={item.id || idx} style={{
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: '16px',
+                  border: '1px solid #F1F5F9',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                  padding: '16px',
+                  marginBottom: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
                 }}>
-                  {item.status || 'Hadir'}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      backgroundColor: cfg.iconBg,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: cfg.iconColor,
+                      flexShrink: 0
+                    }}>
+                      <Icon size={22} color={cfg.iconColor} strokeWidth={2.2} />
+                    </div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        color: '#0F4A38',
+                        margin: '0 0 2px 0',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {item.session || item.classInfo?.title || item.title || 'Sesi Pelatihan'}
+                      </p>
+                      <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>
+                        {formatAttendanceDate(item.date || item.attended_at || item.created_at || item.date_formatted)}
+                      </p>
+                    </div>
+                  </div>
+                  <div style={{
+                    backgroundColor: cfg.badgeBg,
+                    color: cfg.textColor,
+                    padding: '5px 12px',
+                    borderRadius: '20px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    flexShrink: 0,
+                    marginLeft: '8px'
+                  }}>
+                    {cfg.text}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
