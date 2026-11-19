@@ -5,6 +5,73 @@ import api from '../utils/api';
 
 const INDO_MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
+const INDO_MONTHS_MAP = {
+  'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4,
+  'jun': 5, 'jul': 6, 'agu': 7, 'aug': 7, 'sep': 8, 'okt': 9, 'oct': 9,
+  'nov': 10, 'des': 11, 'dec': 11
+};
+
+const parseDateOnly = (rawDate) => {
+  if (!rawDate) return null;
+  const str = String(rawDate).trim();
+  const ymdMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (ymdMatch) {
+    return new Date(parseInt(ymdMatch[1], 10), parseInt(ymdMatch[2], 10) - 1, parseInt(ymdMatch[3], 10));
+  }
+  const dmyMatch = str.match(/^(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})/);
+  if (dmyMatch) {
+    const day = parseInt(dmyMatch[1], 10);
+    const mStr = dmyMatch[2].toLowerCase().substring(0, 3);
+    const year = parseInt(dmyMatch[3], 10);
+    const mIdx = INDO_MONTHS_MAP[mStr];
+    if (mIdx !== undefined) {
+      return new Date(year, mIdx, day);
+    }
+  }
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+};
+
+const getTodayDateOnly = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+};
+
+const isToday = (rawDate) => {
+  const d = parseDateOnly(rawDate);
+  if (!d) return false;
+  return d.getTime() === getTodayDateOnly().getTime();
+};
+
+const isPast = (rawDate) => {
+  const d = parseDateOnly(rawDate);
+  if (!d) return false;
+  return d.getTime() < getTodayDateOnly().getTime();
+};
+
+const filterAttendanceHistory = (item) => {
+  const status = String(item.status || '').trim().toLowerCase();
+  if (status === 'belum') return false;
+
+  const itemDate = item.attendance_date || item.date;
+
+  // Jika hari ini:
+  // Hanya tampilkan jika sudah absen (hadir / izin / sakit).
+  // Jangan tampilkan 'tidak hadir' untuk hari ini karena hari ini masih berjalan.
+  if (isToday(itemDate)) {
+    return ['hadir', 'izin', 'sakit'].includes(status);
+  }
+
+  // Jika tanggal kemarin atau lampau:
+  // Tampilkan semua status (termasuk tidak hadir)
+  if (isPast(itemDate)) {
+    return true;
+  }
+
+  // Jika unparseable atau lainnya, hanya tampilkan jika berstatus hadir
+  return status === 'hadir';
+};
+
 const formatAttendanceDate = (rawDate) => {
   if (!rawDate) return '-';
   try {
@@ -88,13 +155,24 @@ const Absen = () => {
     try {
       setLoadingHistory(true);
       const response = await api.get('/trainee/attendances');
-      setAttendances(response.data.data || response.data || []);
+      const list = response.data.data || response.data || [];
+      setAttendances(list);
+
+      const hasHadirToday = list.some(item => {
+        const status = String(item.status || '').trim().toLowerCase();
+        return isToday(item.attendance_date || item.date) && ['hadir', 'izin', 'sakit'].includes(status);
+      });
+      if (hasHadirToday) {
+        localStorage.setItem('attended_today', 'true');
+      }
     } catch (error) {
       console.error("Error fetching attendances", error);
     } finally {
       setLoadingHistory(false);
     }
   };
+
+  const validAttendances = attendances.filter(filterAttendanceHistory);
 
   useEffect(() => {
     let html5QrCode = null;
@@ -405,7 +483,7 @@ const Absen = () => {
           
           {loadingHistory ? (
             <p style={{ textAlign: 'center', color: '#64748B', fontSize: '14px', padding: '1rem 0' }}>Memuat riwayat...</p>
-          ) : attendances.filter(a => a.status !== 'Belum').length === 0 ? (
+          ) : validAttendances.length === 0 ? (
             <div style={{
               backgroundColor: '#FFFFFF',
               borderRadius: '16px',
@@ -418,7 +496,7 @@ const Absen = () => {
               Belum ada riwayat presensi.
             </div>
           ) : (
-            attendances.filter(a => a.status !== 'Belum').map((item, idx) => {
+            validAttendances.map((item, idx) => {
               const cfg = getAttendanceStatusConfig(item.status);
               const Icon = cfg.IconComponent;
               return (
