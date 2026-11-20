@@ -1,18 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPendingEvaluations, submitEvaluation } from '../utils/api';
 import { EVALUATION_QUESTIONS, EVALUATION_VALUES } from '../constants/evaluationQuestions';
-import { CheckCircle, AlertCircle, Check, FileX, Award, Sparkles, X, ChevronRight } from 'lucide-react';
-
-const BotanicalLeaf = ({ style }) => (
-  <svg viewBox="0 0 100 100" style={style}>
-    <path fill="currentColor" d="M10,90 Q15,40 50,10 Q80,20 90,60 Q80,85 50,90 Q20,95 10,90 Z" />
-    <path fill="none" stroke="currentColor" strokeWidth="2" d="M10,90 Q30,60 50,10" />
-    <path fill="none" stroke="currentColor" strokeWidth="1" d="M25,75 Q40,65 50,55" />
-    <path fill="none" stroke="currentColor" strokeWidth="1" d="M35,60 Q50,55 60,45" />
-    <path fill="none" stroke="currentColor" strokeWidth="1" d="M45,45 Q60,40 70,30" />
-  </svg>
-);
+import { CheckCircle, AlertCircle, Check, Award, Sparkles, X, ChevronRight } from 'lucide-react';
 
 export default function Evaluasi() {
   const navigate = useNavigate();
@@ -29,11 +19,7 @@ export default function Evaluasi() {
   const [modalStep, setModalStep] = useState(1);
   const [submittedSession, setSubmittedSession] = useState(null);
 
-  useEffect(() => {
-    fetchPending();
-  }, []);
-
-  const fetchPending = async () => {
+  const fetchPending = useCallback(async () => {
     try {
       const res = await getPendingEvaluations();
       const evalData = res.data || res;
@@ -45,7 +31,11 @@ export default function Evaluasi() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchPending();
+  }, [fetchPending]);
 
   const handleRadioChange = (qId, value) => {
     setAnswers(prev => ({ ...prev, [qId]: value }));
@@ -85,7 +75,9 @@ export default function Evaluasi() {
       setShowSuccessModal(true);
       try {
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-      } catch (err) {}
+      } catch {
+        // Abaikan jika device tidak support getar
+      }
 
       setHasSubmitted(true);
       setAnswers({}); setExplanation(''); setKesanPesan('');

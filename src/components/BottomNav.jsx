@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, QrCode, ClipboardList, Star, User } from 'lucide-react';
 import logoImg from '../assets/logo.png';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
@@ -15,27 +15,33 @@ const BotanicalLeaf = ({ style }) => (
 
 const Profil = () => {
   const navigate = useNavigate();
-  const [trainee, setTrainee] = useState({
-    name: 'Nama Peserta',
-    program: '-',
-    universitas: '-',
-    jurusan: '-',
-    asal_daerah: '-'
+  const [trainee, setTrainee] = useState(() => {
+    try {
+      const stored = localStorage.getItem('trainee_data');
+      if (stored) {
+        return {
+          name: 'Nama Peserta',
+          program: '-',
+          universitas: '-',
+          jurusan: '-',
+          asal_daerah: '-',
+          ...JSON.parse(stored)
+        };
+      }
+    } catch {
+      // ignore
+    }
+    return {
+      name: 'Nama Peserta',
+      program: '-',
+      universitas: '-',
+      jurusan: '-',
+      asal_daerah: '-'
+    };
   });
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
-    // Load from local storage first for quick render
-    try {
-      const stored = localStorage.getItem('trainee_data');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setTrainee(prev => ({ ...prev, ...parsed }));
-      }
-    } catch (e) {
-      console.error('Error parsing trainee data', e);
-    }
-
     // Fetch fresh data from API
     const fetchProfile = async () => {
       try {

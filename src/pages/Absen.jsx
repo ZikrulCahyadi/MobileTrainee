@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Camera, XCircle, QrCode, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Camera, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import api from '../utils/api';
 
@@ -43,12 +43,6 @@ const isToday = (rawDate) => {
   return d.getTime() === getTodayDateOnly().getTime();
 };
 
-const isPast = (rawDate) => {
-  const d = parseDateOnly(rawDate);
-  if (!d) return false;
-  return d.getTime() < getTodayDateOnly().getTime();
-};
-
 const filterAttendanceHistory = (item) => {
   const status = String(item.status || '').trim().toLowerCase();
   // Riwayat Absensi hanya menampilkan kehadiran yang sah (Hadir, Izin, Sakit)
@@ -76,7 +70,7 @@ const formatAttendanceDate = (rawDate) => {
       return `${day} ${mStr} ${year}`;
     }
     return str;
-  } catch (e) {
+  } catch {
     return String(rawDate);
   }
 };
@@ -131,11 +125,7 @@ const Absen = () => {
   const [attendances, setAttendances] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
 
-  useEffect(() => {
-    fetchHistory();
-  }, []);
-
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     try {
       setLoadingHistory(true);
       const response = await api.get('/trainee/attendances');
@@ -154,17 +144,21 @@ const Absen = () => {
     } finally {
       setLoadingHistory(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
   const validAttendances = attendances.filter(filterAttendanceHistory);
 
   useEffect(() => {
     let html5QrCode = null;
     let isProcessingScan = false;
-    
+
     if (activeTab === 'scan' && isScanning) {
       html5QrCode = new Html5Qrcode("qr-reader");
-      
+
       html5QrCode.start(
         { facingMode: "environment" }, // Pakai kamera belakang
         { fps: 10, qrbox: { width: 250, height: 250 } },
@@ -184,8 +178,8 @@ const Absen = () => {
           // Submit langsung tanpa delay
           try {
             const response = await api.post('/trainee/submit-attendance', {
-                qr_token: decodedText.trim(),
-                qr_code: decodedText.trim()
+              qr_token: decodedText.trim(),
+              qr_code: decodedText.trim()
             });
             localStorage.setItem('attended_today', 'true');
             setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
@@ -193,19 +187,19 @@ const Absen = () => {
           } catch (err) {
             let debugMsg = 'Tidak ada respon dari server.';
             if (err.response && err.response.data) {
-                debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
+              debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
             }
             setFeedback({ type: 'error', text: debugMsg });
           }
         },
-        (error) => {
+        () => {
           // Abaikan error per frame (misal QR belum ketemu)
         }
       ).catch((err) => {
         console.error("Camera start error", err);
-        setFeedback({ 
-          type: 'error', 
-          text: 'Kamera tidak dapat diakses. Pastikan Anda telah memberikan izin kamera pada browser/aplikasi Anda.' 
+        setFeedback({
+          type: 'error',
+          text: 'Kamera tidak dapat diakses. Pastikan Anda telah memberikan izin kamera pada browser/aplikasi Anda.'
         });
         setIsScanning(false);
       });
@@ -220,13 +214,13 @@ const Absen = () => {
 
   const handleSubmitAbsen = async () => {
     if (!token) return setFeedback({ type: 'error', text: 'Silakan masukkan token QR Code!' });
-    
+
     setFeedback({ type: 'loading', text: 'Memverifikasi token absensi manual Anda...' });
-    
+
     try {
       const response = await api.post('/trainee/submit-attendance', {
-          qr_token: token.trim(),
-          qr_code: token.trim()
+        qr_token: token.trim(),
+        qr_code: token.trim()
       });
       localStorage.setItem('attended_today', 'true');
       setFeedback({ type: 'success', text: response.data.message || 'Absensi berhasil! Anda tercatat hadir.' });
@@ -235,7 +229,7 @@ const Absen = () => {
     } catch (err) {
       let debugMsg = 'Tidak ada respon dari server.';
       if (err.response && err.response.data) {
-          debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
+        debugMsg = err.response.data.message || err.response.data.error || (typeof err.response.data === 'object' ? JSON.stringify(err.response.data) : err.response.data);
       }
       setFeedback({ type: 'error', text: debugMsg });
     }
@@ -274,7 +268,7 @@ const Absen = () => {
           marginBottom: '16px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
         }}>
-          <button 
+          <button
             type="button"
             style={{
               flex: 1,
@@ -298,7 +292,7 @@ const Absen = () => {
           >
             Scan Kamera
           </button>
-          <button 
+          <button
             type="button"
             style={{
               flex: 1,
@@ -338,7 +332,7 @@ const Absen = () => {
               {isScanning ? (
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div id="qr-reader" style={{ width: '100%', maxWidth: '380px', overflow: 'hidden', borderRadius: '12px' }}></div>
-                  <button 
+                  <button
                     type="button"
                     style={{
                       marginTop: '16px',
@@ -383,7 +377,7 @@ const Absen = () => {
                   }}>
                     <Camera size={32} color="#0D3829" strokeWidth={2.2} />
                   </div>
-                  <button 
+                  <button
                     type="button"
                     style={{
                       backgroundColor: '#0D3829',
@@ -414,10 +408,10 @@ const Absen = () => {
               <p style={{ fontSize: '12px', color: '#64748B', margin: '0 0 14px 0' }}>
                 Ketik kode token presensi dari Trainer
               </p>
-              
-              <input 
-                type="text" 
-                placeholder="Contoh: TRN-2026-XYZ" 
+
+              <input
+                type="text"
+                placeholder="Contoh: TRN-2026-XYZ"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 style={{
@@ -431,10 +425,10 @@ const Absen = () => {
                   fontSize: '14px',
                   outline: 'none',
                   boxSizing: 'border-box'
-                }} 
+                }}
               />
-              
-              <button 
+
+              <button
                 type="button"
                 style={{
                   width: '100%',
@@ -449,7 +443,7 @@ const Absen = () => {
                   cursor: 'pointer',
                   boxShadow: '0 4px 12px rgba(13, 56, 41, 0.2)',
                   opacity: feedback?.type === 'loading' ? 0.7 : 1
-                }} 
+                }}
                 onClick={handleSubmitAbsen}
                 disabled={feedback?.type === 'loading'}
               >
@@ -464,7 +458,7 @@ const Absen = () => {
           <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#0F4A38', marginBottom: '12px' }}>
             Riwayat Absensi
           </h3>
-          
+
           {loadingHistory ? (
             <p style={{ textAlign: 'center', color: '#64748B', fontSize: '14px', padding: '1rem 0' }}>Memuat riwayat...</p>
           ) : validAttendances.length === 0 ? (
@@ -566,8 +560,8 @@ const Absen = () => {
               </div>
             </div>
           ) : (
-            <div className="card" style={{ 
-              width: '100%', maxWidth: '340px', padding: '2rem 1.5rem', 
+            <div className="card" style={{
+              width: '100%', maxWidth: '340px', padding: '2rem 1.5rem',
               textAlign: 'center', borderRadius: '16px', backgroundColor: '#fff',
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
             }}>
@@ -579,18 +573,18 @@ const Absen = () => {
               }}>
                 {feedback.type === 'success' ? <CheckCircle size={36} /> : <AlertCircle size={36} />}
               </div>
-              
+
               <h3 className="font-bold text-xl mb-3" style={{ color: 'var(--primary-dark)' }}>
                 {feedback.type === 'success' ? 'Berhasil!' : 'Gagal'}
               </h3>
               <p className="text-sm text-light mb-6" style={{ lineHeight: '1.6' }}>
                 {feedback.text}
               </p>
-              
-              <button 
-                style={{ 
+
+              <button
+                style={{
                   display: 'block',
-                  width: '100%', padding: '0.875rem', borderRadius: '10px', 
+                  width: '100%', padding: '0.875rem', borderRadius: '10px',
                   fontWeight: 'bold', border: 'none', cursor: 'pointer',
                   backgroundColor: feedback.type === 'success' ? '#047857' : '#ef4444',
                   color: '#ffffff',

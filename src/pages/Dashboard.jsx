@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, ClipboardList, Star, QrCode, Calendar, Clock, MapPin, Home, User, BookOpen, ChevronRight, BookOpenCheck, Coffee, X } from 'lucide-react';
+import { CheckCircle, ClipboardList, Star, QrCode, Calendar, Clock, MapPin, Home, User, BookOpen, ChevronRight, BookOpenCheck, X } from 'lucide-react';
 import api from '../utils/api';
 import logoImg from '../assets/logo.png';
 
@@ -160,7 +160,7 @@ const Dashboard = () => {
       } else {
         window.open(url, '_blank', 'noopener,noreferrer');
       }
-    } catch (e) {
+    } catch {
       window.location.href = url;
     }
   };

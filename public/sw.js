@@ -22,7 +22,7 @@ self.addEventListener('notificationclick', function(event) {
     event.notification.close();
     
     event.waitUntil(
-        clients.matchAll({ type: 'window' }).then(function(clientList) {
+        self.clients.matchAll({ type: 'window' }).then(function(clientList) {
             const urlToOpen = new URL(event.notification.data.url, self.location.origin).href;
             
             for (let i = 0; i < clientList.length; i++) {
@@ -31,8 +31,8 @@ self.addEventListener('notificationclick', function(event) {
                     return client.focus();
                 }
             }
-            if (clients.openWindow) {
-                return clients.openWindow(urlToOpen);
+            if (self.clients.openWindow) {
+                return self.clients.openWindow(urlToOpen);
             }
         })
     );

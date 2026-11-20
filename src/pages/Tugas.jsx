@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Clock, Upload, X, Trash2, FileText, CheckCircle, AlertCircle, FileX, ClipboardList, Camera, Image as ImageIcon } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Clock, Upload, Trash2, FileText, CheckCircle, AlertCircle, ClipboardList, Camera } from 'lucide-react';
 import api from '../utils/api';
 import { useNavigate, Link } from 'react-router-dom';
 const compressImageFast = (file) => {
@@ -67,6 +67,21 @@ const compressImageFast = (file) => {
   });
 };
 
+const parseDateSafe = (raw) => {
+  if (!raw) return null;
+  const d = new Date(raw);
+  if (!isNaN(d.getTime())) return d;
+  const match = String(raw).trim().match(/^(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})(?:\s+(\d{1,2}):(\d{1,2}))?/);
+  if (match) {
+    const months = { jan: 0, feb: 1, mar: 2, apr: 3, mei: 4, may: 4, jun: 5, jul: 6, agu: 7, aug: 7, sep: 8, okt: 9, oct: 9, nov: 10, des: 11, dec: 11 };
+    const m = months[match[2].toLowerCase().substring(0, 3)];
+    if (m !== undefined) {
+      return new Date(parseInt(match[3], 10), m, parseInt(match[1], 10), parseInt(match[4] || 0, 10), parseInt(match[5] || 0, 10));
+    }
+  }
+  return null;
+};
+
 const Tugas = () => {
   const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
@@ -84,36 +99,46 @@ const Tugas = () => {
   // States for cancel confirmation
   const [cancelConfirmTaskId, setCancelConfirmTaskId] = useState(null);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    let isMounted = true;
 
-  const fetchTasks = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('/trainee/tasks');
-      const list = response.data?.data || (Array.isArray(response.data) ? response.data : []);
-      setTasks(list);
-      if (response.data?.message) {
-        setEmptySubtitle(response.data.message);
-      } else {
-        setEmptySubtitle('Saat ini belum ada tugas baru yang perlu dikerjakan.');
+    const fetchTasks = async () => {
+      try {
+        const response = await api.get('/trainee/tasks');
+        if (!isMounted) return;
+        const list = response.data?.data || (Array.isArray(response.data) ? response.data : []);
+        setTasks(list);
+        if (response.data?.message) {
+          setEmptySubtitle(response.data.message);
+        } else {
+          setEmptySubtitle('Saat ini belum ada tugas baru yang perlu dikerjakan.');
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        if (error.response?.status === 401) {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('trainee_data');
+          navigate('/login');
+        }
+        console.error("Error fetching tasks", error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-    } catch (error) {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('trainee_data');
-        navigate('/login');
-      }
-      console.error("Error fetching tasks", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchTasks();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [navigate, refreshTrigger]);
 
   const handleOpenUpload = (taskId) => {
     if (expandedTaskId === taskId) {
@@ -213,7 +238,7 @@ const Tugas = () => {
       setFeedback({ type: 'success', text: 'Tugas berhasil dikumpulkan!' });
       setExpandedTaskId(null);
       setSelectedFiles([]);
-      fetchTasks();
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error("Error submitting task", error);
       setFeedback({ type: 'error', text: error.response?.data?.message || 'Gagal mengumpulkan tugas. Silakan coba lagi.' });
@@ -229,7 +254,7 @@ const Tugas = () => {
       await api.delete(`/trainee/tasks/${taskId}/submit`);
       setCancelConfirmTaskId(null);
       setExpandedTaskId(null);
-      fetchTasks();
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error("Error canceling task", error);
       setFeedback({ type: 'error', text: error.response?.data?.message || 'Gagal membatalkan pengumpulan tugas.' });
@@ -339,57 +364,97 @@ const Tugas = () => {
             )}
           </div>
         ) : (
-          tasks.map((task, index) => (
-          <div className="card" key={task.id || `task-${index}`} style={{ overflow: 'hidden' }}>
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-bold text-light text-xs uppercase">{task.session || 'Materi'}</h3>
-              <span className={`status-badge ${task.status === 'Sudah' ? '' : 'red'}`} style={{ fontSize: '0.65rem' }}>
-                {task.status === 'Sudah' ? 'Sudah Dikerjakan' : 'Belum Dikerjakan'}
-              </span>
-            </div>
-            
-            <p className="font-bold text-primary-dark text-lg mb-2">{task.title || 'Judul Tugas'}</p>
-            
-            <div className="flex items-center gap-2 text-light text-xs mb-4">
-              <Clock size={14} />
-              <span>Tenggat: {task.deadline_formatted || '-'}</span>
-            </div>
+          tasks.map((task, index) => {
+            const deadlineDate = parseDateSafe(task.deadline_raw);
+            const submittedDate = parseDateSafe(task.submission?.submitted_at);
+            const isDeadlinePassed = Boolean(deadlineDate && deadlineDate < new Date());
+            const isSubmitted = task.status === 'Sudah';
+            const isSubmittedLate = Boolean(
+              task.is_late ||
+              (isSubmitted && deadlineDate && submittedDate && submittedDate > deadlineDate)
+            );
 
-            {task.deadline_raw && new Date(task.deadline_raw) < new Date() ? (
-              <button 
-                style={{ 
-                  padding: '0.75rem', fontSize: '0.875rem', backgroundColor: '#f1f5f9', 
-                  border: '1px solid #e2e8f0', color: '#94a3b8', 
-                  cursor: 'not-allowed', borderRadius: '8px', width: '100%', fontWeight: '600' 
-                }} 
-                disabled
-              >
-                {task.status === 'Sudah' ? 'Tugas Telah Dikumpulkan (Waktu Habis)' : 'Waktu Pengumpulan Habis'}
-              </button>
-            ) : task.status !== 'Sudah' ? (
-              <button 
-                className="btn-primary" 
-                style={{ padding: '0.75rem', fontSize: '0.875rem' }} 
-                onClick={() => handleOpenUpload(task.id)}
-              >
-                Kumpulkan Tugas
-              </button>
-            ) : (
-              <button 
-                style={{ 
-                  padding: '0.75rem', fontSize: '0.875rem', backgroundColor: 'transparent', 
-                  border: '1px solid #ef4444', color: '#ef4444', 
-                  cursor: 'pointer', borderRadius: '8px', width: '100%', fontWeight: '600' 
-                }} 
-                onClick={() => setCancelConfirmTaskId(task.id)}
-              >
-                Batalkan Pengumpulan
-              </button>
-            )}
+            return (
+              <div className="card" key={task.id || `task-${index}`} style={{ overflow: 'hidden' }}>
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-bold text-light text-xs uppercase">{task.session || 'Materi'}</h3>
+                  {isSubmitted ? (
+                    isSubmittedLate ? (
+                      <span className="status-badge" style={{ fontSize: '0.65rem', backgroundColor: '#FEF3C7', color: '#D97706', border: '1px solid #FCD34D' }}>
+                        Sudah (Terlambat)
+                      </span>
+                    ) : (
+                      <span className="status-badge" style={{ fontSize: '0.65rem' }}>
+                        Sudah Dikerjakan
+                      </span>
+                    )
+                  ) : isDeadlinePassed ? (
+                    <span className="status-badge red" style={{ fontSize: '0.65rem', backgroundColor: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5' }}>
+                      Terlambat
+                    </span>
+                  ) : (
+                    <span className="status-badge red" style={{ fontSize: '0.65rem' }}>
+                      Belum Dikerjakan
+                    </span>
+                  )}
+                </div>
+                
+                <p className="font-bold text-primary-dark text-lg mb-2">{task.title || 'Judul Tugas'}</p>
+                
+                <div className="flex items-center gap-2 text-light text-xs mb-4">
+                  <Clock size={14} />
+                  <span>Tenggat: {task.deadline_formatted || '-'}</span>
+                  {isDeadlinePassed && !isSubmitted && (
+                    <span style={{ color: '#DC2626', fontWeight: 'bold', marginLeft: '4px' }}>(Lewat Tenggat)</span>
+                  )}
+                </div>
 
-            {expandedTaskId === task.id && (
-              <div style={{ borderTop: '1px solid #e2e8f0', marginTop: '1.25rem', paddingTop: '1.25rem' }}>
-                <h4 className="font-bold text-primary-dark text-sm" style={{ marginBottom: '1rem' }}>Upload File Tugas</h4>
+                {!isSubmitted ? (
+                  <button 
+                    className="btn-primary" 
+                    style={{ 
+                      padding: '0.75rem', 
+                      fontSize: '0.875rem',
+                      ...(isDeadlinePassed ? { backgroundColor: '#c2410c' } : {})
+                    }} 
+                    onClick={() => handleOpenUpload(task.id)}
+                  >
+                    {isDeadlinePassed ? 'Kumpulkan Tugas (Terlambat)' : 'Kumpulkan Tugas'}
+                  </button>
+                ) : (
+                  <button 
+                    style={{ 
+                      padding: '0.75rem', fontSize: '0.875rem', backgroundColor: 'transparent', 
+                      border: '1px solid #ef4444', color: '#ef4444', 
+                      cursor: 'pointer', borderRadius: '8px', width: '100%', fontWeight: '600' 
+                    }} 
+                    onClick={() => setCancelConfirmTaskId(task.id)}
+                  >
+                    Batalkan Pengumpulan
+                  </button>
+                )}
+
+                {expandedTaskId === task.id && (
+                  <div style={{ borderTop: '1px solid #e2e8f0', marginTop: '1.25rem', paddingTop: '1.25rem' }}>
+                    <h4 className="font-bold text-primary-dark text-sm" style={{ marginBottom: '1rem' }}>Upload File Tugas</h4>
+
+                    {isDeadlinePassed && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        backgroundColor: '#FFFBEB',
+                        border: '1px solid #FDE68A',
+                        borderRadius: '10px',
+                        padding: '10px 12px',
+                        marginBottom: '1rem',
+                        color: '#92400E',
+                        fontSize: '12.5px'
+                      }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0, color: '#D97706' }} />
+                        <span>Waktu pengumpulan telah melewati batas tenggat. Tugas ini tetap dapat dikumpulkan dan akan tercatat sebagai <strong>Terlambat</strong>.</span>
+                      </div>
+                    )}
                 
                 {selectedFiles.length === 0 && (
                   <div 
@@ -703,7 +768,8 @@ const Tugas = () => {
               </div>
             )}
           </div>
-        ))
+        );
+      })
       )}
       </div>
 
